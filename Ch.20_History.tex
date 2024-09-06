@@ -1,11 +1,25 @@
-\chapter{History\label{history}}
-This chapter will give a brief overview of the history of camera API's. In the
-early days cameras were quite simple, there effectively was just the "press
-button" followed by receiving a picture. This was the case with most cameras
-such as webcams, even the integrated laptop ones were just USB devices. Linux
-had initially had lacking support for this, but in the early 2000s Video For
-Linux (V4L, later V4L2 for version 2) was developed. This covered most of the
-use cases at the time. In 2008 the Nokia N900 was released, this was a Linux
-based phone that was not like most cameras at the time. It provided interfaces
-for customizing just about everything. From ISPs to Image Processing Algorithms
-(IPA's).
+\chapter{History and Background\label{history}}
+\section{Background}
+This section will introduce the necessary concepts needed for understanding the
+thesis.
+
+\subsection{CMOS Sensors}
+
+
+\section{History}
+In the early days cameras were quite simple, there effectively was just the
+"press button" followed by receiving a picture. This process did not allow for
+much customization. This was the case with most cameras such as webcams where
+the camera sensors were "smart sensors". This meant that the . Even the
+integrated laptop ones were just USB devices. Linux had initially had lacking
+support for this, but in the early 2000s Video For Linux (V4L, later V4L2 for
+version 2) was developed. This covered most of the use cases at the time.
+
+% TODO: cite frankencamera
+In 2009 the Nokia N900 was released, this was a Linux based phone that was not
+like most cameras at the time. It provided interfaces for customizing just
+about everything. From ISPs to Image Processing Algorithms (IPA's), this meant
+that the current way camera API's worked was no longer sufficient. Enter
+Frankencamera\cite{adams2010frankencamera}; this was an effort at the time
+to create an API that allowed the user to express the different options that
+cameras needed.

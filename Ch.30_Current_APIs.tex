@@ -24,26 +24,46 @@ EGL. EGL is a very dated API, like OpenGL it's largely in maintenance mode
 today.
 
 \section{libcamera}
-libcamera is an open-source (with binary blobs for some cameras) C++ embedded
-camera framework that supports a large number of complex cameras such as the
-IMX 219, 477 and many more. It supports multiple encoders to receive images in
-for example PNGs/raw images. The primary target for libcamera is Arm processors
-in the form of Raspberry PI's, Chrome OS and Android though many other
-architectures are also supported.
+libcamera is an open-source C++ embedded camera framework that supports a large
+number of complex cameras such as the IMX 219, 477 and many more. It supports
+multiple encoders to receive images in for example PNGs/raw images. The primary
+target for libcamera is Arm processors in the form of Raspberry PI's, Chrome OS
+and Android though many other architectures are also supported\cite{libcameraStack}.
+Because image processing algorithms are often proprietary and very secret,
+libcamera also allows for binary blobs to be supplied by the vendors. The
+vendors do need to submit the "base case" where the camera can take a still
+image with decent quality to get the blob approved.
 
-Before libcamera, the way to use camera sensors was very complex, often
-requiring it's own MCU. libcamera moved this almost completely to userspace,
-trivializing many applications. libcamera supports a variety of IPA's
-for 3A (Auto focus, Auto exposure, Auto white balancing). Camera
-configuration is done using V4L2, libcamera being essentially an extension for
-it.
+\begin{figure}
+    \begin{center}
+        \includegraphics[width=0.60\textwidth]{figures/libcameraarch.png}
+    \end{center}
+    \caption{High level overview of how the libcamera architecture looks like}
+    \label{fig:libcameraarch}
+\end{figure}
+
 
 \section{HAL3}
-Hardware Abstraction Layer 3 (HAL3) is probably the most well known one that
-will be discussed in this thesis. It's included in each Android phone, it has
-remarkable features for a mobile phone camera. It was created to bridge the gap
-between the higher level the API camera2 and the lower level hardware API's. It
-allows for more modification than camera2, while requiring more work to manage.
+Hardware Abstraction Layer 3 (HAL3) is the camera API that's included in each
+Android phone, it has remarkable features for a mobile phone camera. It was
+created to bridge the gap between the higher level the API camera2 and the
+lower level hardware API's. It allows for more modification than camera2, while
+requiring more work to manage.
+
+% TODO more content
+
+\begin{figure}
+    \begin{center}
+        \includegraphics[width=0.5\textwidth]{figures/hal3arch}
+    \end{center}
+    \caption{HAL3 architecture \cite{hal3arch}}\label{fig:hal3arch}
+\end{figure}
 
 \section{Kamaros}
-Kamaros is a new API
+Kamaros is a new API currently (2024) being designed. It's goal is to
+standardize the embedded camera frameworks. It's under development, not much can
+be mentioned about the API itself due to a spec not being out yet. It hopes to
+be easy to use and ability to leverage Vulkan for post processing.
+% TODO?
+
+%TODO Gen<I>Cam? it's a much higher level API though might still be worth talking about?
