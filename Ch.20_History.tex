@@ -3,7 +3,55 @@
 This section will introduce the necessary concepts needed for understanding the
 thesis.
 
-\subsection{CMOS Sensors}
+\subsection{Sensor technology}
+In the end, sensor technology is just some material that can convert photons
+into electrical charge. In this section we'll cover two common ways this is
+done, as well as a brief list of pros and cons for each.
+
+\subsubsection{CMOS Sensors}
+\textit{Complementary Metal Oxide Semiconductor} (CMOS) sensors are very old
+sensors, being around since ~1960. Over the years they've become competetive
+with \textit{Charged Couple Devices} (CCDs) which are a competetive technology.
+While CCDs have a better image quality, it requires much more power than CMOS
+which can be up to 100 times less power hungry \cite{CMOSReview}. This means
+that in many mobile devices and many other low power devices wants CMOS
+over CCDs.
+
+TODO: add brief description of CMOS
+
+This thesis will not provide a very in depth view into how exactly the
+technology works. Curious readers can have a look at \cite{CMOSReview} as well
+as \cite{ieeeCMOS}.
+
+\subsubsection{CCD Sensors}
+TODO
+
+\subsection{Image Signal Processors}
+Image Signal Processors (ISPs) are a highly secretive piece of hardware. There
+are few systems that say they even have one, and even fewer that explain how
+they work. To understand how ISPs work, we'll be using the Raspberry Pi
+\cite{raspberrypiTuningGuide}, it's the only one that is open source (except
+for the RTL code). In this section we'll give an overview of what ISPs
+typically do and how they function.
+
+So ISPs, what exactly are they? As the name suggests, they process image signals.
+When an image come from the sensor the signal (image) contains a lot of
+redundant information. The sensor is also also not quite calibrated to the real
+world environment, a lot of things are simply wrong with it. Correcting these
+is an expensive process, so much so that there's a HW block in camera systems
+that does this for you.
+
+The isp has a couple steps, most work something along the lines of
+
+\begin{enumerate}
+    \item Receive raw sensor data, often a Bayer image or similar
+    \item Demosaic the image, i.e. extracting the pixel data from the raw image.
+          The is often done using a Bayer like filter, many exist though they
+          all work in the same way.
+    \item Begin the autocontrol algorithms
+
+
+\end{enumerate}
 
 
 \section{History}
