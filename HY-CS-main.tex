@@ -63,14 +63,15 @@
 \usepackage{textcomp}        % Package for special symbols
 \usepackage[pdftex]{color, graphicx} % For pdf output and jpg/png graphics
 \usepackage{epsfig}
-\usepackage{subfigure}
 \usepackage[pdftex, plainpages=false]{hyperref} % For hyperlinks and pdf metadata
 \usepackage{fancyhdr}        % For nicer page headers
 \usepackage{tikz}            % For making vector graphics (hard to learn but powerful)
 %\usepackage{wrapfig}        % For nice text-wrapping figures (use at own discretion)
 \usepackage{amsmath, amssymb} % For better math
 \usepackage[nameinlink,capitalize]{cleveref}
+\usepackage{subfig}
 
+\renewcommand{\thefootnote}{\roman{footnote}}
 \singlespacing               %line spacing options; normally use single
 
 \fussy
@@ -88,7 +89,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Set up personal information for the title page and the abstract form.
 %% Replace parameters with your information.
-\title{A Camera API Comparison}
+\title{Camera API Comparison}
 
 \author{Viktor Horsmanheimo}
 \date{\today}

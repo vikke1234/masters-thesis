@@ -1,11 +1,11 @@
 %%
 %% This is file `HYthesisML.cls'
 %%
-%% 
+%%
 %% HYthesisML.cls supports the creation of BSc and MSc theses,
 %% seminar papers, and other reports at the Department of Computer Science at the University of Helsinki. An eventual motivation
 %% is to spread the style to uses at other departments as well, by
-%% making localisations easy. 
+%% making localisations easy.
 %%
 %%% This work may be distributed and/or modified under the
   % conditions of the LaTeX Project Public License, either version 1.3
@@ -14,7 +14,7 @@
   %   http://www.latex-project.org/lppl.txt
   % and version 1.3 or later is part of all distributions of LaTeX
   % version 2005/12/01 or later.
-%% 
+%%
 \NeedsTeXFormat{LaTeX2e}[2000/06/01]
 \ProvidesClass{HYthesisML}[2018/10/01 v1.0 Document class for BSc and MSc theses in Computer Sciences of University of Helsinki]
 %
@@ -24,7 +24,7 @@
 \@finnishfalse\@swedishfalse\@englishfalse%
 \newif\if@latin\@latinfalse%
 % computer science specific content starts
-\newif\if@cs% 
+\newif\if@cs%
 \newif\if@csm%
 \newif\if@tkt%
 \newif\if@tktl%
@@ -120,7 +120,7 @@
   \if@english
     \RequirePackage[swedish,finnish,main=english]{babel}[2001/03/01 v3.7h The Babel package]
     \selectlanguage{english}
-    %\setbiblanguage{english} 
+    %\setbiblanguage{english}
    \else
     \if@swedish
       \RequirePackage[finnish,english,main=swedish]{babel}[2001/03/01 v3.7h The Babel package]
@@ -156,7 +156,7 @@
   \if@twoside
     \geometry{bindingoffset=0.5cm,top=2.5cm, left=2.5cm, right=2.5cm,
               %TM- removed, overspecification
-              %textwidth=16cm, 
+              %textwidth=16cm,
               textheight=23cm,
               headheight=0.5cm, headsep=0.5cm}%
   \else
@@ -171,15 +171,15 @@
 % Default marginratio is 1:1 for oneside 2:3 for twoside pages
 % Default vscale=0.7, hscale=0.7
 % Bindingoffset would increase the smaller margin (inner) and decrease the textwidth,
-% therefore, same bindingoffset effect is here obtained by swapping the margin 
+% therefore, same bindingoffset effect is here obtained by swapping the margin
 % Better fill rate for Finnish and more appropriate footnote management acquired by
 % balancing hscale+includefoot options
 
-                          % This is necessary: utilised (as 
+                          % This is necessary: utilised (as
                           % replacementof obsolete packages)
 \RequirePackage{etoolbox} % for careful patching of internal macros
                           % if constructs
-                          % hooks for \atbegindocument, \atenddocument 
+                          % hooks for \atbegindocument, \atenddocument
 \patchcmd{\chapter}{plain}{empty}{}{}
                           % removes page numbers from p1 of chapter
 \RequirePackage{lastpage}
@@ -202,7 +202,7 @@
 \RequirePackage{xstring}
 
 
-%%%%  keep these good charm lines! 
+%%%%  keep these good charm lines!
 \setcounter{page}{1}
 \setcounter{chapter}{0}
 \setlength{\parindent}{0pt}
@@ -216,7 +216,7 @@
 % This is a bottleneck: if abstract of report style pushes in
 % anything extra, the output document and error messages
 % get garbled and uninterpretable. There is a simple abstract
-% text page (centered) left, but all document control structures 
+% text page (centered) left, but all document control structures
 % are lost.
 \RequirePackage[runin]{abstract}[2001/06/11]
 \renewcommand{\abstractname}{}    % clear the title
@@ -254,7 +254,7 @@
 % next page with text should be odd
 %TM:  \newpage
   \cleardoublepage
- 
+
   \tableofcontents
 %TM:  \newpage
   \cleardoublepage
@@ -397,11 +397,10 @@
 %% actual parameters from document
 
 %% Look of the reports
-\usepackage{lmodern} 
-\usepackage{textcomp} 
+\usepackage{lmodern}
+\usepackage{textcomp}
 \usepackage[pdftex]{color, graphicx} % For pdf output and jpg/png graphics
 \usepackage{epsfig}
-\usepackage{subfigure} 
 \usepackage{tikz}            % For making vector graphics (hard to learn but powerful)
 \usepackage{amsmath, amssymb} % For better math
 \usepackage[footnotesize,bf]{caption}  % For more control over figure captions
@@ -429,7 +428,7 @@
 \newcommand{\backmatter}{%
     \clearpage % needed so that mainmatter is fully flushed before turning off the counter
     \togglefalse{mainmatter}
-    
+
     \addtocontents{toc}{\cftpagenumbersoff{chapter}}
     \cleardoublepage
     \toggletrue{backmatter}
@@ -446,7 +445,7 @@
 
 
 
-% Additions and changes for document key terms. 
+% Additions and changes for document key terms.
 % These address elements required for computer science.
 \addto\captionsenglish{%
 \renewcommand{\bibname}{References}%
@@ -509,7 +508,7 @@
 
 \let\oldappendix\appendix
 \renewcommand{\appendix}[1]{
-%TM: This one set the last page of each appendix to 1, which kinda is not what one wants 
+%TM: This one set the last page of each appendix to 1, which kinda is not what one wants
 %TM:-        \setcounter{page}{1}%
     \chapter{#1}
 }
@@ -588,18 +587,18 @@
 \setcounter{page}{-998}
 \label{in}
 \thispagestyle{empty}
-% \if@censored 
+% \if@censored
 %  {
 %     \par
 %     {\bf\supervisorslabel}\par
 % %TM: parindent only indents the first line -> use \leftskip within {}
-% %    {\addtolength{\parindent}{2em} 
+% %    {\addtolength{\parindent}{2em}
 %     {\leftskip=2em
 %      \@supervisors
 %   %  \addtolength{\parindent}{-2em}}
 %      \par
 %     }
-    
+
 %     \par
 %     {\bf\examinerlabel}\par
 %     {\leftskip=2em
@@ -623,13 +622,13 @@
      \eaddress
      \par
     }
-%TM: 
+%TM:
 \vfill
 
 %TM: commented out as it seems \makeatother should not used in .cls files...
 %\makeatother
 \thispagestyle{empty}
-} 
+}
 
 %%%% actual cover page, triggers the backside of the leaf printed too
 
@@ -657,7 +656,7 @@
 
 % VM: Removed study line = study track from title page
 %\if@csm
-    %TM- skip subject (=study line) 
+    %TM- skip subject (=study line)
 %\else
 %    {\subject}
 %\fi
@@ -668,7 +667,7 @@
 
 \begin{LARGE}
 {\bf \@title}
-\end{LARGE} 
+\end{LARGE}
 
 \vspace{2cm}
 
@@ -711,14 +710,14 @@
     \begin{minipage}[t][12cm]{5.7in} %TM: fixed the minipage height (=summary+ACM classif to 12cm); adjust if layout changes
     \setlength{\parskip}{2ex}
 }
-{ 
+{
     \vfill %TM: works only here, if the minipage height is known, thus fixed above
     {\bf \@ccs}
     %TM:- \par\space\par
     \abst@small \@classification
     \end{minipage}
     \end{lrbox}
-%TM this needed moving after changes to abstract page 
+%TM this needed moving after changes to abstract page
 %    \put(75, 560){\mbox{\usebox{\@abstract}}}
     \put(22, 450){\mbox{\usebox{\@abstract}}}
 
@@ -734,37 +733,37 @@
 \renewenvironment{abstract}%
 {
 \iflanguage{finnish}{\label{page.abstract.finnish}}{\iflanguage{swedish}{\label{page.abstract.swedish}}{\iflanguage{english}{\label{page.abstract.english}}{\label{page.abstract.other}}}}
-%TM:- commented following line out due to multiple times defined label warning 
+%TM:- commented following line out due to multiple times defined label warning
 % \label{page.abstract.}
 \thispagestyle{empty}\newpage
 
-% would be nice to know how to change the page geometry within these environment so that the picture would fit within the text area -- now only page length can be easily changed, as some other stuff does not have effect at this point. 
+% would be nice to know how to change the page geometry within these environment so that the picture would fit within the text area -- now only page length can be easily changed, as some other stuff does not have effect at this point.
 % \newgeometry{bindingoffset=0cm, top=0cm, left=0cm, right=0cm, bottom=0cm,
 %               %TM- removed, overspecification
-%               %textwidth=16cm, 
+%               %textwidth=16cm,
 %               %textheight=29cm,
 %               headheight=0cm, headsep=0cm}
-%or these            
+%or these
 % \setlength{\topsep}{100pt}%
 % \setlength{\leftmargin}{0pt}%
 % \setlength{\rightmargin}{0pt}%
 %This works in making the page longer
 \enlargethispage{24pt} %this is just enough for the current box size
 
-%TM +++ 
+%TM +++
 \begin{picture}(400,678)(0,0) %pic width is too small to get rid of the overfull hbox warning; just drawing wider; this seems to be no problem for latex page creation, as it only needs to fit the picture as defined, not to care about someone drawing outside the picture.
 
 %Put the content texts there
 \put(5, 634){\makebox(200, 8)[l]{\abst@small \faculty}}
-\put(233, 634){\makebox(200, 8)[l]{\abst@small \getSubject}}  
+\put(233, 634){\makebox(200, 8)[l]{\abst@small \getSubject}}
 
 \put(5,  601){\makebox(100, 8)[l]{\abst@small \@author}}
 \put(5,  564)%
     {\parbox{450pt}{\abst@small \@title}}
- 
+
 \put(5,  527)%
     {\parbox{450pt}{\abst@small \@supervisors}}
- 
+
 \put(5, 490){\makebox(100, 8)[l]{\abst@small \level}}
 \put(160, 490){\makebox(100, 8)[l]{\abst@small \today}}
 \put(301, 490){\makebox(100, 8)[l]{\abst@small \getPageInfo}}
@@ -782,11 +781,11 @@
 %the text on top, outside the big box
 \put(1,670){\makebox(461,10)[l]{\abst@small\sc HELSINGIN YLIOPISTO -- HELSINGFORS UNIVERSITET -- UNIVERSITY OF HELSINKI}}
 
-%then the heading texts for the small boxes and lines 
+%then the heading texts for the small boxes and lines
 \put(5,657){\makebox(150,6)[l]{\abst@tiny Tiedekunta --- Fakultet --- Faculty}}
 \put(231,629){\line(0,1){37}} % pystyviiva
 \put(236,657){\makebox(100,5)[l]{\abst@tiny \oppiaine}}
-\put(0,629){\line(1,0){462}} 
+\put(0,629){\line(1,0){462}}
 
 \put(5,620){\makebox(100,5)[l]{\abst@tiny Tekij\"a --- F\"orfattare --- Author}}
 \put(0,592){\line(1,0){462}}
@@ -825,21 +824,21 @@
 % \renewenvironment{abstract}%
 % {
 % \iflanguage{finnish}{\label{page.abstract.finnish}}{\iflanguage{swedish}{\label{page.abstract.swedish}}{\iflanguage{english}{\label{page.abstract.english}}{\label{page.abstract.other}}}}
-% %TM:- commented following line out due to multiple times defined label warning 
+% %TM:- commented following line out due to multiple times defined label warning
 % % \label{page.abstract.}
 % \thispagestyle{empty}
 % %TM: +++ just for cheking the page print area corners
 % %+ \hfill +
 
-% %TM: expect the page to have been changed before 
+% %TM: expect the page to have been changed before
 % %\newpage
 % %\clearpage
 % %\cleardoublepage
 
-% %TM +++ 
+% %TM +++
 % %\begin{picture}(595,842)(50,-90)% The last two are positioning the abstract on the page; TM: that was the here previously, definging an whole page and a picture with an origin way out of the page. (This is the way it was earlier)
 % \begin{picture}(400,650)(53,130) %hack: too small pic size (to avoid overfull hbox), moved up to compensate, sad. And  positioning the abstract on the page to compensate for the bottom left corner coordinates used below!?!?
-% %\begin{picture}(462,678)(53,110) % Somehow these values sound like closer to proper pic size, but may need changing page geometry or something to work out well. 
+% %\begin{picture}(462,678)(53,110) % Somehow these values sound like closer to proper pic size, but may need changing page geometry or something to work out well.
 % % The framing box (way below) could be in placed in (0,0), but there is an offset in use, so need to compensate for that above (instead of recalculating and changing all the values below;)
 % % \put(0,0){\framebox(461,666){}} %try this to see where it goes;)
 
@@ -848,20 +847,20 @@
 % %TM: changed use of getSubject to be like the others
 % %\put(286, 744){
 % %    \ifx\subject\empty
-% %        \parbox{450pt}{\abst@small \getSubject}        
+% %        \parbox{450pt}{\abst@small \getSubject}
 % %    \else
 % %       \parbox[b]{450pt}{\abst@small \getSubject}
 % %    \fi
 % %
-% \put(286, 744){\makebox(200, 8)[l]{\abst@small \getSubject}}   
+% \put(286, 744){\makebox(200, 8)[l]{\abst@small \getSubject}}
 
 % \put(58,  711){\makebox(100, 8)[l]{\abst@small \@author}}
 % \put(58,  674)%
 %     {\parbox{450pt}{\abst@small \@title}}
- 
+
 % \put(58,  637)%
 %     {\parbox{450pt}{\abst@small \@supervisors}}
- 
+
 % \put(58, 600){\makebox(100, 8)[l]{\abst@small \level}}
 % \put(213, 600){\makebox(100, 8)[l]{\abst@small \today}}
 % \put(354, 600){\makebox(100, 8)[l]{\abst@small \getPageInfo}}
@@ -884,7 +883,7 @@
 % \put(58,767){\makebox(150,6)[l]{\abst@tiny Tiedekunta --- Fakultet --- Faculty}}
 % \put(284,739){\line(0,1){37}} % pystyviiva
 % \put(289,767){\makebox(100,5)[l]{\abst@tiny \oppiaine}}
-% \put(53,739){\line(1,0){462}} 
+% \put(53,739){\line(1,0){462}}
 
 % \put(58,730){\makebox(100,5)[l]{\abst@tiny Tekij\"a --- F\"orfattare --- Author}}
 % \put(53,702){\line(1,0){462}}
