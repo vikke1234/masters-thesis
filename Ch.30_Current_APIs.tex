@@ -2,37 +2,37 @@
 \section{Argus}
 %https://docs.nvidia.com/jetson/l4t-multimedia/group__LibargusAPI.html
 
-Argus is a camera API that's developed by Nvidia. Argus runs only on Nvidia
+Argus is a camera API that is developed by Nvidia. Argus runs only on Nvidia
 hardware, such as the Jetson Orin Nano Developer Kit.
 
 Argus is roughly based on V4L2 though effectively a re-implementation. At the
 time Argus was created, V4L2 was still in an early stage. It di not supporting
 a variety of features such as multicamera setups etc. hence Argus was created
 in order to add the missing features easily. These days V4L2 and Argus are very
-close though in later chapters we'll give an overview of what pros and cons
+close though in later chapters we will give an overview of what pros and cons
 each has.
 
-The reason Argus doesn't use V4L2 is largely a historical one at this point.
+The reason Argus does not use V4L2 is largely a historical one at this point.
 At the time Argus was created V4L2 was in an early stage, it had very limited
 features. Nvidia created Argus in order to leviate these issues but ended up
 with an API that is very similar to V4L2. Automotive for example needed support
-for multi camera use cases, this was something that wasn't supported in V4L2 at
+for multi camera use cases, this was something that was not supported in V4L2 at
 the time.
 
-Over time, the API has aged a little though. Today it's still very dependent on
+Over time, the API has aged a little though. Today it is still very dependent on
 EGL. EGL is a very dated API, like OpenGL it's largely in maintenance mode
 today.
 
 \section{libcamera}
 libcamera is an open-source C++ embedded camera framework that supports a large
-number of complex cameras such as the IMX 219, 477 and many more. It supports
-multiple encoders to receive images in for example PNGs/raw images. The primary
-target for libcamera is Arm processors in the form of Raspberry PI's, Chrome OS
-and Android though many other architectures are also supported\cite{libcameraStack}.
-Because image processing algorithms are often proprietary and very secret,
-libcamera also allows for binary blobs to be supplied by the vendors. The
-vendors do need to submit the "base case" where the camera can take a still
-image with decent quality to get the blob approved.
+number of complex cameras such as the Sony IMX 219, 477 and many more. It
+supports multiple encoders to receive images in for example PNGs/raw images.
+The primary target for libcamera is Arm processors in the form of Raspberry
+PI's, Chrome OS and Android though many other architectures are also supported
+\cite{libcameraStack}. Because image processing algorithms are often
+proprietary and very secret, libcamera also allows for binary blobs to be
+supplied by the vendors. The vendors do need to submit the "base case" where
+the camera can take a still image with decent quality to get the blob approved.
 
 \begin{figure}
     \begin{center}
@@ -44,13 +44,32 @@ image with decent quality to get the blob approved.
 
 
 \section{HAL3}
-Hardware Abstraction Layer 3 (HAL3) is the camera API that's included in each
+Hardware Abstraction Layer 3 (HAL3) is the camera API that is included in each
 Android phone, it has remarkable features for a mobile phone camera. It was
 created to bridge the gap between the higher level the API camera2 and the
 lower level hardware API's. It allows for more modification than camera2, while
 requiring more work to manage.
 
-% TODO more content
+Like libcamera and Argus, it is a request based API. Being a request based API
+allows it to be a very explicit API and allows for the user to have a
+significantly higher level of control. The reason for the other
+two being very close to HAL3 in style is because they are largely based on it.
+Argus does not provide an interface for this but the style is similar. libcamera
+does provide an interface for it.
+
+In \cref{fig:hal3arch} we can see the high level diagram of how a capture
+request is done and how the frame arrives to the end user. The capture process
+works in the following way:
+
+\begin{enumerate}
+    \item Create a capture request, modifying gain, focal length etc.
+    \item Give capture request to the capture device class
+    \item Capture device passes the request to the ISP which creates a program
+        for the request, see \cref{section:isp} for a detailed explanation of
+        how ISPs work.
+
+\end{enumerate}
+
 
 \begin{figure}
     \begin{center}
@@ -61,9 +80,15 @@ requiring more work to manage.
 
 \section{Kamaros}
 Kamaros is a new API currently (2024) being designed. It's goal is to
-standardize the embedded camera frameworks. It's under development, not much can
-be mentioned about the API itself due to a spec not being out yet. It hopes to
-be easy to use and ability to leverage Vulkan for post processing.
+standardize the embedded camera frameworks. It is under development, so not much
+can be mentioned about the API itself due to a spec not being out yet. It hopes
+to be easy to use and ability to leverage Vulkan for post processing. This
+would allow users to easily create cross platform code and not be highly
+platform dependent as it is currently.
 % TODO?
 
+\section {Gen<I>Cam}
+Genicam is a significantly higher level API. It largely uses cameras over
+ethernet. We will not be going into much detail about this API either,
+as it has a very different use case than the ones above.
 %TODO Gen<I>Cam? it's a much higher level API though might still be worth talking about?
