@@ -1,5 +1,5 @@
-\chapter{Background and History\label{history}}
-\section{Background}
+\chapter{Background and History\label{section:history}}
+\section{Background}\label{section:background}
 
 \subsection{Sensor technology}
 At it's core, sensors are just some photodiodes that can convert photons
@@ -37,7 +37,8 @@ manner. Unlike CMOS, CDD allows you to design very small pixel sizes as the
 pixels themselves don't require much real estate. The downside of this is that
 this creates a lot of heat, requiring good cooling which is not always
 available. In \cref{fig:cmosvsccd} we can see how the CCD sensor looks like on
-a high level.
+a high level. Because CCD sensors read the signals row by row, if there' some
+pixels are very bright it can create visual effects for the entire row.
 
 \begin{figure}
     \begin{center}
@@ -47,33 +48,144 @@ a high level.
 \end{figure}
 
 
-\subsection{Image Signal Processors}
-\textit{Image Signal Processors} (ISPs) are a highly secretive piece of hardware. There
-are few systems that say they even have one, and even fewer that explain how
-they work. To understand how ISPs work, we will be using the Raspberry Pi
-\cite{raspberrypiTuningGuide}, it is the only one that is open source (except
-for the RTL code). In this section we will give an overview of what ISPs
-typically do and how they function.
+\newpage
+\subsection{Image Signal Processors} \label{section:isp}
+\textit{Image Signal Processors} (ISPs) are a highly secretive piece of
+hardware. There are few systems that say they even have one, and even fewer
+that explain how they work. To understand how ISPs work, we will be using the
+Raspberry Pi\footnote[2]{https://datasheets.raspberrypi.com/camera/raspberry-pi-camera-guide.pdf}
+\footnote{https://datasheets.raspberrypi.com/camera/raspberry-pi-image-signal-processor-specification.pdf},
+it is the only one that is open source (except for the RTL code) along with an
+open specification. ISPs can differ slightly though the idea is roughly the
+same across the board.
 
-So ISPs, what exactly are they? As the name suggests, they process image signals.
-When an image come from the sensor the signal (image) contains a lot of
-redundant information. The sensor is also also not quite calibrated to the real
-world environment, a lot of things are simply wrong with it. Correcting these
-is an expensive process, so much so that there is a HW block in camera systems
-that does this for you.
+In this section we will give an overview of what ISPs typically do and how they
+function.
+
+So ISPs, what exactly are they? As the name suggests, they process image
+signals. When an image come from the sensor the signal (image) contains a lot
+of redundant and unprocessed information. The sensor is also also not quite
+calibrated to the real world environment, a lot of things are simply wrong with
+it. Correcting these is an expensive process, so much so that there is a HW
+block in camera systems that does this for you.
 
 The isp has a couple steps, most work something along the lines of
 
+\begin{figure}[htpb]
+    \centering
+    \subfloat[Blue Channel]{
+        \includegraphics[width=0.2\textwidth]{figures/bayer_frame_blue.png}
+        \label{fig:bayer_blue}
+    }
+    \qquad
+    \subfloat[Full Bayer Frame]{
+        \includegraphics[width=0.2\textwidth]{figures/bayer_frame.png}
+        \label{fig:bayer_full}
+    }
+
+    \subfloat[Green Channel]{
+        \includegraphics[width=0.2\textwidth]{figures/bayer_frame_green.png}
+        \label{fig:bayer_green}
+    }
+    \qquad
+    \subfloat[Red Channel]{
+        \includegraphics[width=0.2\textwidth]{figures/bayer_frame_red.png}
+        \label{fig:bayer_red}
+    }
+    \qquad
+    \subfloat[Final image]{
+        \includegraphics[width=0.2\textwidth]{figures/bayer_final}
+        \label{fig:bayer_final}
+    }
+
+    \caption[Bayer frame channels]{Bayer Frame Channels\footnotemark}
+    \label{fig:bayer_channels}
+\end{figure}
+\footnotetext{https://en.wikipedia.org/wiki/Demosaicing}
+
 \begin{enumerate}
     \item Receive raw sensor data, often a Bayer image or similar
-    \item Demosaic the image, i.e. extracting the pixel data from the raw image.
-          The is often done using a Bayer like filter, many exist though they
-          all work in the same way.
-    \item Begin the autocontrol algorithms
+
+    \item Demosaic the image, i.e. extracting the pixel data from the raw
+        image. The is often done using a Bayer like filter, many exist though
+        they all work in the same way. In \cref{fig:bayer_channels} we can see
+        how each of these channels are extracted. Once extracted they're
+        combined into the final image as seen in \cref{fig:bayer_final}. One
+        way this can be done is taking the average of each nearby pixel and
+        interpolating them into a single one. This is quite crude compared to
+        the real thing but the idea is the same.
+
+    \item The ISP then begins applying the autocontrol algorithms, the standard
+        ones are known as the 3A algorithms for auto white balancing, gain, and
+        exposure control. These will be covered in a bit more detail in
+        \cref{section:autocontrol}.
+
+    \item After processing the image in the ISP, the ISP then gives the image
+        to the application that requested the image. The ISP also re-calibrates
+        the autocontrol parameters based on the ones that were computed for the
+        current frame. This is in order to correct for example white balancing,
+        if coming from a very dark room into a very light room, it uses the
+        current parameters to improve the white balancing.
 
 
 \end{enumerate}
 
+\subsubsection{Autocontrol algorithms} \label{section:autocontrol}
+
+When people talk about their images being unedited, most don't realize that all
+photos are edited to a degree. Some better than others, autocontrol algorithms
+today can process an image quite heavily. This section will give an overview of
+what autocontrol algorithms are, though not the inner workings of these
+algorithms.
+
+Effectively all ISPs today implement at the very least the 3A (\textit{Auto
+White Balancing} (AWB), and \textit{Auto Gain Control} (AGC), \textit{Auto
+Focus Control} (AFC)) algorithms. When the ISP receives metadata from the sensor,
+it uses the AFC algorithm to focus on a specific object that the user tries to
+focus on. Similarly, the AGC algorithm is used to make sure that the image won't
+be too bright or dark. AWBs purpose on the other hand is to make sure that the
+temperature of the image is correct. Blue being cold and yellow being warm, it
+balances the whites to reflect reality as closely as possible.
+
+On top of the 3A algorithms, there are a lot more that the ISP often does. For
+example there's often some lens shading, color correction and more. In
+\cref{fig:lens_shading} we can see an example of how the ISP has fixed the image.
+In \cref{fig:with_shading} the corners are significantly darker than the center.
+While in \cref{fig:without_shading} the whole image is equally lit.
+
+\begin{figure}[htpb]
+    \centering
+    \subfloat[With lens shading]{
+        \includegraphics[width=0.4\textwidth]{figures/alsc-none.jpg}
+        \label{fig:with_shading}
+    }
+    \qquad
+    \subfloat[Without lens shading]{
+        \includegraphics[width=0.4\textwidth]{figures/alsc-both.jpg}
+        \label{fig:without_shading}
+    }
+
+    \caption{Different lens shading corrections. \textit{Photo by Naush Patuk used with permission}}\label{fig:lens_shading}
+\end{figure}
+
+\subsubsection{Image Processing and Tiles}
+The Raspberry Pi ISP is divided into two sections, the front- and back end.
+Though the front end has some image processing capabilties, being able to scale
+and crop images. It's main responsibility is to write images to main memory,
+providing an
+AXI\footnote{https://developer.arm.com/documentation/ihi0051/latest} interface
+to give the ISP frames. While doing this, it provides the backend with some
+statistics of the image. These statistics consist of for example histograms
+of color counts etc.
+
+The backend then reads these images that the frontend has provided. Unlike how
+applications deal with full frames, the backend deals with \textit{tiles}. The
+Raspberry Pi uses tiles that are 640x640 aligned to 64 bits. This is done in
+order to reduce the amount of memory required to process an image and speed up
+memory access. By limiting it to tiles of the image, significantly less memory
+is required for a 4K image to be processed. Additionally this means that the
+image processing can be paralellized, by splitting the image into several
+chunks the ISP can safely process the image in paralell.
 
 \section{History}
 In this section we'll largely cover the history of we've come from V4L to
@@ -89,7 +201,6 @@ initially had lacking support for this, but in the early 2000s Video For Linux
 (V4L, later V4L2 for version 2) was developed. This covered most of the use
 cases at the time.
 
-% TODO: cite frankencamera
 In 2009 the Nokia N900 was released, this was a Linux based phone that was not
 like most cameras at the time. It provided interfaces for customizing just
 about everything. From ISPs to Image Processing Algorithms (IPA's), this meant
