@@ -57,6 +57,11 @@ two being very close to HAL3 in style is because they are largely based on it.
 Argus does not provide an interface for this but the style is similar. libcamera
 does provide an interface for it.
 
+While request based APIs allow for a better control of the camera, it also
+makes it so that the API is not able to optimze much if the request can fully
+change each frame. While if the API was a streaming API it could have certain
+assumptions that reduce amount of copies. Hence making it faster.
+
 In \cref{fig:hal3arch} we can see the high level diagram of how a capture
 request is done and how the frame arrives to the end user. The capture process
 works in the following way:
@@ -68,6 +73,7 @@ works in the following way:
         for the request, see \cref{section:isp} for a detailed explanation of
         how ISPs work.
 
+    \item Images come in the form of a capture result to the application.
 \end{enumerate}
 
 
@@ -79,16 +85,46 @@ works in the following way:
 \end{figure}
 
 \section{Kamaros}
+Over the years there have been some camera standardization efforts such as
+OpenKCam. These have failed though due to lack of industry interest. Today
+the Khronos group has started the camera standardization effort again with
+Kamaros.
+
 Kamaros is a new API currently (2024) being designed. It's goal is to
-standardize the embedded camera frameworks. It is under development, so not much
-can be mentioned about the API itself due to a spec not being out yet. It hopes
-to be easy to use and ability to leverage Vulkan for post processing. This
-would allow users to easily create cross platform code and not be highly
-platform dependent as it is currently.
+standardize embedded camera frameworks. This means that instead of needing
+three different APIs for Android, L4T, and Linux you would only need to use
+Kamaros. It would sit on top of the transport layer (CSI-2, USB etc.), allowing
+the applications to use a single API to communicate with cameras over multiple
+platforms. Though there are still many issues in the camera world that will not
+be solved by Kamaros. Examples of these are for example camera configuration.
+Currently there is no standard way to configure cameras, the camera drivers are
+often a huge part of the code base. At the same time, there is not a lot of
+difference between them. In the future, Kamaros may try to tackle this problem
+though it is not anything that will be solved initially.
+
+The API is under development, so not much can be mentioned about the API itself
+due to a spec not being out yet. It hopes to be easy to use and ability to
+leverage Vulkan for post processing. This would allow users to easily create
+cross platform code and not be highly platform dependent as it is currently.
+\cref{fig:kamaros_stack} shows where it would fit in a typical application.
+
+\begin{figure}
+    \begin{center}
+        \includegraphics[width=0.60\textwidth]{figures/kamaros_stack.png}
+    \end{center}
+    \caption[Kamaros stack]{Kamaros stack\footnotemark}\label{fig:kamaros_stack}
+\end{figure}
+\footnotetext{https://www.khronos.org/assets/uploads/developers/presentations/Khronos\_Kamaros\_Embedded\_World\_Mar23.pdf}
+
+\section {GenICam}
+\textit{Generic Interface for Cameras} (GenICam) is a standard that was
+developed by the \textit{European Machine Vision Association} (EMVA). It is
+largely used by industry.
+
+Genicam is a significantly higher level API than the ones listed above. It
+uses for example XML files to configure cameras, this is not very space
+efficient compared to device trees. In general it is not really built for
+embedded use cases.
+
 % TODO?
 
-\section {Gen<I>Cam}
-Genicam is a significantly higher level API. It largely uses cameras over
-ethernet. We will not be going into much detail about this API either,
-as it has a very different use case than the ones above.
-%TODO Gen<I>Cam? it's a much higher level API though might still be worth talking about?
