@@ -2,7 +2,7 @@
 \section{Background}\label{section:background}
 
 \subsection{Sensor technology}
-At it's core, sensors are just some photodiodes that can convert photons
+At its core, sensors are just some photodiodes that can convert photons
 into electrical charge. In this section we will cover two common sensor this is
 done, as well as a brief list of pros and cons for each.
 
@@ -34,10 +34,10 @@ in depth overview of what CMOS sensors are.
 significantly better than CMOS. It works using capacitors next to the
 photodiodes to create voltage out of charge which is then read out in a serial
 manner. Unlike CMOS, CDD allows you to design very small pixel sizes as the
-pixels themselves don't require much real estate. The downside of this is that
+pixels themselves do not require much real estate. The downside of this is that
 this creates a lot of heat, requiring good cooling which is not always
 available. In \cref{fig:cmosvsccd} we can see how the CCD sensor looks like on
-a high level. Because CCD sensors read the signals row by row, if there' some
+a high level. Because CCD sensors read the signals row by row, if there are some
 pixels are very bright it can create visual effects for the entire row.
 
 \begin{figure}
@@ -127,12 +127,11 @@ The isp has a couple steps, most work something along the lines of
         if coming from a very dark room into a very light room, it uses the
         current parameters to improve the white balancing.
 
-
 \end{enumerate}
 
 \subsubsection{Autocontrol algorithms} \label{section:autocontrol}
 
-When people talk about their images being unedited, most don't realize that all
+When people talk about their images being unedited, most do not realize that all
 photos are edited to a degree. Some better than others, autocontrol algorithms
 today can process an image quite heavily. This section will give an overview of
 what autocontrol algorithms are, though not the inner workings of these
@@ -140,15 +139,15 @@ algorithms.
 
 Effectively all ISPs today implement at the very least the 3A (\textit{Auto
 White Balancing} (AWB), and \textit{Auto Gain Control} (AGC), \textit{Auto
-Focus Control} (AFC)) algorithms. When the ISP receives metadata from the sensor,
-it uses the AFC algorithm to focus on a specific object that the user tries to
-focus on. Similarly, the AGC algorithm is used to make sure that the image won't
-be too bright or dark. AWBs purpose on the other hand is to make sure that the
-temperature of the image is correct. Blue being cold and yellow being warm, it
-balances the whites to reflect reality as closely as possible.
+Focus Control} (AFC)) algorithms. When the ISP receives metadata from the
+sensor, it uses the AFC algorithm to focus on a specific object that the user
+tries to focus on. Similarly, the AGC algorithm is used to make sure that the
+image wll not be too bright or dark. AWBs purpose on the other hand is to make
+sure that the temperature of the image is correct. Blue being cold and yellow
+being warm, it balances the whites to reflect reality as closely as possible.
 
 On top of the 3A algorithms, there are a lot more that the ISP often does. For
-example there's often some lens shading, color correction and more. In
+example there is often some lens shading, color correction and more. In
 \cref{fig:lens_shading} we can see an example of how the ISP has fixed the image.
 In \cref{fig:with_shading} the corners are significantly darker than the center.
 While in \cref{fig:without_shading} the whole image is equally lit.
@@ -171,7 +170,7 @@ While in \cref{fig:without_shading} the whole image is equally lit.
 \subsubsection{Image Processing and Tiles}
 The Raspberry Pi ISP is divided into two sections, the front- and back end.
 Though the front end has some image processing capabilties, being able to scale
-and crop images. It's main responsibility is to write images to main memory,
+and crop images. Its main responsibility is to write images to main memory,
 providing an
 AXI\footnote{https://developer.arm.com/documentation/ihi0051/latest} interface
 to give the ISP frames. While doing this, it provides the backend with some

@@ -1,4 +1,4 @@
-\chapter{Current API's\label{currentAPIs}}
+\chapter{Current APIs\label{section:currentAPIs}}
 \section{Argus}
 %https://docs.nvidia.com/jetson/l4t-multimedia/group__LibargusAPI.html
 
@@ -20,7 +20,7 @@ for multi camera use cases, this was something that was not supported in V4L2 at
 the time.
 
 Over time, the API has aged a little though. Today it is still very dependent on
-EGL. EGL is a very dated API, like OpenGL it's largely in maintenance mode
+EGL. EGL is a very dated API, like OpenGL it is largely in maintenance mode
 today.
 
 \section{libcamera}
@@ -47,7 +47,7 @@ the camera can take a still image with decent quality to get the blob approved.
 Hardware Abstraction Layer 3 (HAL3) is the camera API that is included in each
 Android phone, it has remarkable features for a mobile phone camera. It was
 created to bridge the gap between the higher level the API camera2 and the
-lower level hardware API's. It allows for more modification than camera2, while
+lower level hardware APIs. It allows for more modification than camera2, while
 requiring more work to manage.
 
 Like libcamera and Argus, it is a request based API. Being a request based API
@@ -90,7 +90,7 @@ OpenKCam. These have failed though due to lack of industry interest. Today
 the Khronos group has started the camera standardization effort again with
 Kamaros.
 
-Kamaros is a new API currently (2024) being designed. It's goal is to
+Kamaros is a new API currently (2024) being designed. Its goal is to
 standardize embedded camera frameworks. This means that instead of needing
 three different APIs for Android, L4T, and Linux you would only need to use
 Kamaros. It would sit on top of the transport layer (CSI-2, USB etc.), allowing
