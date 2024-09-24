@@ -28,11 +28,29 @@ libcamera is an open-source C++ embedded camera framework that supports a large
 number of complex cameras such as the Sony IMX 219, 477 and many more. It
 supports multiple encoders to receive images in for example PNGs/raw images.
 The primary target for libcamera is Arm processors in the form of Raspberry
-PI's, Chrome OS and Android though many other architectures are also supported
-\cite{libcameraStack}. Because image processing algorithms are often
-proprietary and very secret, libcamera also allows for binary blobs to be
+PIs, Chromebooks and Android mobile phones though many other architectures are
+also supported \cite{libcameraStack}. Because image processing algorithms are
+often proprietary and very secret, libcamera also allows for binary blobs to be
 supplied by the vendors. The vendors do need to submit the "base case" where
 the camera can take a still image with decent quality to get the blob approved.
+These blobs are run in a separate process, communicating with libcamera though
+an API provided by the Pipeline Handler using \textit{dmabuf} handles.
+
+In \cref{fig:libcameraarch} we can see an overview of how libcamera looks like
+from a birds eye view. libcamera provides buffer management and a lot of helper
+functions that allow the vendors to focus on the stuff that really matter; the
+IPAs. If the IPA is closed source there are some restrictions: in order to
+ensure that the IPAs do not run any malicious code it has a very limited access
+to the kernel, no network access, and a very restricted view of the filesystem.
+Open source IPAs do not have these restrictions, being verified by the
+maintainers that they do not have any malicious code. Though as mentioned in
+the \cref{section:history} chapter, there are "smart sensors" where the
+sensor itself has an integrated ISP. These do not require IPAs and can instead
+be used as is. IPAs are only required when the ISP is controlled by the CPU.
+
+libcamera then provides high level interfaces then that for example
+\textit{GStreamer} etc. can use. This allows each application to simply build on top
+of the same API for each ISP.
 
 \begin{figure}
     \begin{center}
@@ -126,5 +144,4 @@ uses for example XML files to configure cameras, this is not very space
 efficient compared to device trees. In general it is not really built for
 embedded use cases.
 
-% TODO?
 
