@@ -53,7 +53,7 @@ pixels are very bright it can create visual effects for the entire row.
 \textit{Image Signal Processors} (ISPs) are a highly secretive piece of
 hardware. There are few systems that say they even have one, and even fewer
 that explain how they work. To understand how ISPs work, we will be using the
-Raspberry Pi\footnote[2]{https://datasheets.raspberrypi.com/camera/raspberry-pi-camera-guide.pdf}
+Raspberry Pi\footnote{https://datasheets.raspberrypi.com/camera/raspberry-pi-camera-guide.pdf}
 \footnote{https://datasheets.raspberrypi.com/camera/raspberry-pi-image-signal-processor-specification.pdf},
 it is the only one that is open source (except for the RTL code) along with an
 open specification. ISPs can differ slightly though the idea is roughly the
@@ -78,11 +78,6 @@ The isp has a couple steps, most work something along the lines of
         \label{fig:bayer_blue}
     }
     \qquad
-    \subfloat[Full Bayer Frame]{
-        \includegraphics[width=0.2\textwidth]{figures/bayer_frame.png}
-        \label{fig:bayer_full}
-    }
-
     \subfloat[Green Channel]{
         \includegraphics[width=0.2\textwidth]{figures/bayer_frame_green.png}
         \label{fig:bayer_green}
@@ -93,15 +88,24 @@ The isp has a couple steps, most work something along the lines of
         \label{fig:bayer_red}
     }
     \qquad
+    \subfloat[Full Bayer Frame]{
+        \includegraphics[width=0.2\textwidth]{figures/bayer_frame.png}
+        \label{fig:bayer_full}
+    }
+    \qquad
     \subfloat[Final image]{
         \includegraphics[width=0.2\textwidth]{figures/bayer_final}
         \label{fig:bayer_final}
     }
+    \qquad
+    \subfloat[Bayer pattern]{
+        \includegraphics[width=0.2\textwidth]{figures/bayerpattern.png}
+        \label{fig:bayer_pattern}
+    }
 
-    \caption[Bayer frame channels]{Bayer Frame Channels\footnotemark}
+    \caption[Bayer demosaicing]{Bayer demosaicing, \textit{source: https://en.wikipedia.org/wiki/Demosaicing}}
     \label{fig:bayer_channels}
 \end{figure}
-\footnotetext{https://en.wikipedia.org/wiki/Demosaicing}
 
 \begin{enumerate}
     \item Receive raw sensor data, often a Bayer image or similar
@@ -109,11 +113,11 @@ The isp has a couple steps, most work something along the lines of
     \item Demosaic the image, i.e. extracting the pixel data from the raw
         image. The is often done using a Bayer like filter, many exist though
         they all work in the same way. In \cref{fig:bayer_channels} we can see
-        how each of these channels are extracted. Once extracted they're
+        how each of these channels are extracted. Once extracted they are
         combined into the final image as seen in \cref{fig:bayer_final}. One
         way this can be done is taking the average of each nearby pixel and
         interpolating them into a single one. This is quite crude compared to
-        the real thing but the idea is the same.
+        the real thing but the idea is the same. \cref{fig:bayer_pattern}
 
     \item The ISP then begins applying the autocontrol algorithms, the standard
         ones are known as the 3A algorithms for auto white balancing, gain, and
@@ -186,9 +190,40 @@ is required for a 4K image to be processed. Additionally this means that the
 image processing can be paralellized, by splitting the image into several
 chunks the ISP can safely process the image in paralell.
 
+\subsection{Transport layer}
+In this section we will cover different common technologies that have been used
+to transport images along with an insight into when they are used.
+
+\subsubsection{CSI-2}
+CSI-2 is a technology to transport sensor data over short distances very
+quickly. While being initially made for mobile, the technology has moved to
+automotive. Because of this, CSI-2 has been made to transport data over a few
+centimeters. This has made it slightly more difficult in the automotive
+industry, as cars are larger than a few centimeters. The solution for this is
+often to have another technology for the longer part, once it is within range
+converting it back to CSI-2.
+
+CSI-2 uses two different technologies, namely C-PHY and D-PHY. These can
+transport data at different speeds. Along with the fast C-PHY/D-PHY lanes,
+control lanes are also provided that control the camera over I$^2$C.
+
+D-PHY uses a dedicated lane for clock, this means that it only has two lanes for
+data transport. It is a very simple synchronous protocol, it does not encode
+bits in any way.
+
+Unlike D-PHY, C-PHY does not have a dedicated lane for clock. It uses all lanes
+for both clock and data transport, embedding the clock implicitly into the
+data. C-PHY encodes the bits into symbols, the encoder then guarantees that
+there will be at least one edge in the signal. This allows the receiver to
+derive a clock. Encoding the data, allows one to pass more information to the
+receiver at once opposed to if no encoding would be done.
+
+TODO add images?
+
+\subsubsection{USB}
+
 \section{History}
-In this section we'll largely cover the history of we've come from V4L to
-libcamera.
+In this section we will cover the history of cameras on Linux.
 
 In the early days cameras were quite simple, there effectively was just the
 "press button" followed by receiving a picture. This process did not allow for
@@ -198,12 +233,51 @@ ISP integrated into them, they could do the processing internally. Even the
 integrated laptop ones were just USB devices that spit out images. Linux had
 initially had lacking support for this, but in the early 2000s Video For Linux
 (V4L, later V4L2 for version 2) was developed. This covered most of the use
-cases at the time.
+cases at the time. V4L grew organically over the years, it developed the
+features that were needed as they were needed. This meant that there was no
+large plan being executed, in turn the design that grew became a bad one
+\footnote{Direct documentation on what was wrong with the API has not really
+been written, this is based on a discussion with Laurent Pitchard}.
+In 1998 Bill Dericks began the design and development of V4L2 which we have in
+use today.
+
+\begin{wrapfigure}{r}{0.5\textwidth}
+    \centering
+    \includegraphics[width=0.48\textwidth]{figures/fcam_arch.png}
+    \caption{FCam archictecture \cite{adams2010frankencamera}}
+    \label{fig:fcam_api}
+\end{wrapfigure}
 
 In 2009 the Nokia N900 was released, this was a Linux based phone that was not
 like most cameras at the time. It provided interfaces for customizing just
-about everything. From ISPs to Image Processing Algorithms (IPA's), this meant
-that the current way camera API's worked was no longer sufficient. Enter
+about everything. From ISPs to Image Processing Algorithms (IPAs), this meant
+that the current way camera APIs worked was no longer maintainable. It
+required that the application would manage everything, computing the
+histograms, configuring the autocontrol etc.. While this was doable for a
+company on the scale of Nokia at the time, it was not for anyone else. Enter
 Frankencamera\cite{adams2010frankencamera}; this was an effort at the time
 to create an API that allowed the user to express the different options that
-cameras needed.
+cameras needed. This effort was lead by Stanford and Nokia, it is what most
+modern APIs are based on at a high level. It was built on top of V4L2,
+providing a more user friendly API than the kernel drivers themselves.
+
+Like its successors covored in \cref{section:currentAPIs}, the Frankencam API
+was a request based API. The idea with it was to allow for the user to control
+the cameras very well. \cref{fig:fcam_api} shows the block diagram of how the
+API worked. The application would request a capture, the sensor gets
+reconfigured based on the request. After which it would capture the image with
+which ever peripherals the user has and finally forward the image to the ISP.
+The ISP then processes the image and gives it to the application along with the
+metadata. This will look very similar to how modern APIs work which is covered
+in \cref{section:currentAPIs}.
+
+Before Frankencam many camera APIs were stateful\cite{experimentalCompPhot},
+they only had one state that controlled the sensor. This meant that when you
+wanted to capture multiple images with multiple settings the changes would take
+effect at an unpredictable time in the future. While also adding latency to
+manage the state internally, it also meant that you had to clear the capture
+pipeline so that you could guarantee that the settings were correct. This was a
+very complex process, though state was important; it was placed in the wrong
+place. This lead to the creation of the request based API, where the
+application would manage the state and the camera would simply accept requests.
+
