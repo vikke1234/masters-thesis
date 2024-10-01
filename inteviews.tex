@@ -1,0 +1,58 @@
+\chapter{Interviews}
+In this section we'll cover the interviews we had. They will be covered in no
+perticular order. We will finish up with trends seen based on the interviews.
+The questions were designed to try to get an overview of what the interviewee
+thinks are problems in the field and what new things they would like to see.
+The questions can be found below:
+
+\begin{enumerate}
+    \item what field are you in
+    \item what library do you use (libcamera, argus, etc.) and why did you pick that
+    \item did you compare other alternatives
+    \item do you have any issues/annoyances with the current API that you'd like to highlight
+    \item are there any features you'd like to see in the API
+    \item do you think frame based APIs are preferrable to a streaming based one where it would implicitly capture images for you
+    \item have you heard of the camera standardization effort Kamaros? if so, do you have any thoughts on it?
+    \item are there any other inputs you'd like to give?
+\end{enumerate}
+
+\section{VR/AR}
+When interviewing a senior engineer in the VR/AR field, he mentioned that
+they use Genicam. He said they use the one provided by the manufacturer, this
+is an easy way to get a sensor working. The main issue with these libraries
+though is that the libraries are not always compatible with other manufacturers
+libraries. Property naming for example is not always consistent, to the extent
+of creating their own library just to manage these. The properties should be
+standardized though they still make themselves uncompatible with eachother.
+
+When asked if they thought they needed some new feature missing from the API,
+the developer said that it already does everything he needed. While other
+alternatives also exist, such as OpenCV\footnote{\href{https://opencv.org/}{OpenCV home page}}
+and halcon\footnote{\href{https://www.mvtec.com/products/halcon}{Halcon home page}}.
+OpenCV does not have the specialized sensor support they need (they did not
+mention what their needs were), and halcon is very expensive; this lead them to
+choose Genicam. Genicam allowed them to do both frame based control, when
+explicit settings were needed as well as a streaming one where performance was
+required.
+
+They did consider embeddded cameras on Raspberry Pis, though the issue was cost
+and size. The Raspberry Pis would have been too large and expensive for their
+use case.
+
+For their use case, they did not require the small size constrained environment
+that the embedded camera APIs provided, allowing them to use the higher level
+API like Genicam. Additionally they did not need the ISPs to be configured
+much, disabling all autocontrol algorithms and setting a static exposure time.
+
+For transporting the images, they used ethernet. While this is slower than
+CSI-2, the distances for VR/AR glasses are too long. CSI-2 would corrupt the
+image data, ethernet is a good compromise.
+
+\section{Conclusions}
+One clear issue in the field currently is that the manufacturers do not have a
+standard way to configure cameras. This is something that makes it difficult
+for the user to easily use different ones. While it may be benefitial to not
+allow the user to configure the cameras of other manufacturers as they can't
+move away as easily. This is a double edged sword, it also makes it difficult
+for users to come try a product. This is something that should definitely be
+rectified.
