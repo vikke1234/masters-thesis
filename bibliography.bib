@@ -1,3 +1,49 @@
+@inproceedings{li2008image,
+  title={Image demosaicing: A systematic survey},
+  author={Li, Xin and Gunturk, Bahadir and Zhang, Lei},
+  booktitle={Visual Communications and Image Processing 2008},
+  volume={6822},
+  pages={489--503},
+  year={2008},
+  organization={SPIE}
+}
+@article{burstPhotMobile,
+author = {Hasinoff, Samuel W. and Sharlet, Dillon and Geiss, Ryan and Adams, Andrew and Barron, Jonathan T. and Kainz, Florian and Chen, Jiawen and Levoy, Marc},
+title = {Burst photography for high dynamic range and low-light imaging on mobile cameras},
+year = {2016},
+issue_date = {November 2016},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {35},
+number = {6},
+issn = {0730-0301},
+url = {https://doi.org/10.1145/2980179.2980254},
+doi = {10.1145/2980179.2980254},
+abstract = {Cell phone cameras have small apertures, which limits the number of photons they can gather, leading to noisy images in low light. They also have small sensor pixels, which limits the number of electrons each pixel can store, leading to limited dynamic range. We describe a computational photography pipeline that captures, aligns, and merges a burst of frames to reduce noise and increase dynamic range. Our system has several key features that help make it robust and efficient. First, we do not use bracketed exposures. Instead, we capture frames of constant exposure, which makes alignment more robust, and we set this exposure low enough to avoid blowing out highlights. The resulting merged image has clean shadows and high bit depth, allowing us to apply standard HDR tone mapping methods. Second, we begin from Bayer raw frames rather than the demosaicked RGB (or YUV) frames produced by hardware Image Signal Processors (ISPs) common on mobile platforms. This gives us more bits per pixel and allows us to circumvent the ISP's unwanted tone mapping and spatial denoising. Third, we use a novel FFT-based alignment algorithm and a hybrid 2D/3D Wiener filter to denoise and merge the frames in a burst. Our implementation is built atop Android's Camera2 API, which provides per-frame camera control and access to raw imagery, and is written in the Halide domain-specific language (DSL). It runs in 4 seconds on device (for a 12 Mpix image), requires no user intervention, and ships on several mass-produced cell phones.},
+journal = {ACM Trans. Graph.},
+month = dec,
+articleno = {192},
+numpages = {12},
+keywords = {high dynamic range, computational photography}
+}
+
+  @article{scharstein2002taxonomy,
+  title={A taxonomy and evaluation of dense two-frame stereo correspondence algorithms},
+  author={Scharstein, Daniel and Szeliski, Richard},
+  journal={International journal of computer vision},
+  volume={47},
+  pages={7--42},
+  year={2002},
+  publisher={Springer}
+}
+@inproceedings{van2012memory,
+  title={Memory errors: The past, the present, and the future},
+  author={Van der Veen, Victor and Dutt-Sharma, Nitish and Cavallaro, Lorenzo and Bos, Herbert},
+  booktitle={Research in Attacks, Intrusions, and Defenses: 15th International Symposium, RAID 2012, Amsterdam, The Netherlands, September 12-14, 2012. Proceedings 15},
+  pages={86--106},
+  year={2012},
+  organization={Springer}
+}
 @incollection{adams2010frankencamera,
   title={The Frankencamera: an experimental platform for computational photography},
   author={Adams, Andrew and Talvala, Eino-Ville and Park, Sung Hee and Jacobs, David E and Ajdin, Boris and Gelfand, Natasha and Dolson, Jennifer and Vaquero, Daniel and Baek, Jongmin and Tico, Marius and others},
@@ -18,7 +64,7 @@
     author = {Laurent Pinchart},
     title = {Giving Linux a Camera Stack: libcamera's 3 Years Journey and Exciting Future},
     year = {2021},
-    month = {Nov},
+    month = {11},
     URL = {https://www.youtube.com/watch?v=gOusavlAlOE}
 }
 
@@ -112,3 +158,81 @@ abstract = {The role of CMOS Image Sensors since their birth around the 1960s, h
   year={1981}
 }
 
+@book{gernsheim1986concise,
+  title={A concise history of photography},
+  author={Gernsheim, Helmut},
+  number={10},
+  year={1986},
+  publisher={Courier Corporation}
+}
+
+@article{meng2016numerical,
+  title={Numerical simulations and analyses of temperature control loop heat pipe for space CCD camera},
+  author={Meng, Qingliang and Yang, Tao and Li, Chunlin},
+  journal={Journal of thermal science},
+  volume={25},
+  pages={402--409},
+  year={2016},
+  publisher={Springer}
+}
+
+@article{peterson2001works,
+  title={How it works: the charged-coupled device, or CCD},
+  author={Peterson, Courtney},
+  journal={Journal of young investigators},
+  volume={3},
+  number={1},
+  year={2001}
+}
+@article{kalaiselvi2017survey,
+  title={Survey of using GPU CUDA programming model in medical image analysis},
+  author={Kalaiselvi, T and Sriramakrishnan, P and Somasundaram, K},
+  journal={Informatics in Medicine Unlocked},
+  volume={9},
+  pages={133--144},
+  year={2017},
+  publisher={Elsevier}
+}
+
+@inproceedings{foster2013visagge,
+  title={Visagge: Visible angle grid for glass environments},
+  author={Foster, Paul and Sun, Zhenghong and Park, Jong Jin and Kuipers, Benjamin},
+  booktitle={2013 IEEE International Conference on Robotics and Automation},
+  pages={2213--2220},
+  year={2013},
+  organization={IEEE}
+}
+
+@article{henley23lidar,
+author = {Connor Henley and Siddharth Somasundaram and Joseph Hollmann and Ramesh Raskar},
+journal = {Opt. Express},
+keywords = {3D printing; Laser beams; Laser sources; Photon counting; Point clouds; Single-photon avalanche diodes},
+number = {4},
+pages = {6370--6388},
+publisher = {Optica Publishing Group},
+title = {Detection and mapping of specular surfaces using multibounce LiDAR returns},
+volume = {31},
+month = {2},
+year = {2023},
+url = {https://opg.optica.org/oe/abstract.cfm?URI=oe-31-4-6370},
+doi = {10.1364/OE.479900},
+abstract = {We propose methods that use specular, multibounce LiDAR returns to detect and map specular surfaces that might be invisible to conventional LiDAR systems that rely on direct, single-scatter returns. We derive expressions that relate the time- and angle-of-arrival of these multibounce returns to scattering points on the specular surface, and then use these expressions to formulate techniques for retrieving specular surface geometry when the scene is scanned by a single beam or illuminated with a multi-beam flash. We also consider the special case of transparent specular surfaces, for which surface reflections can be mixed together with light that scatters off of objects lying behind the surface.},
+}
+@inproceedings{diosi2004advanced,
+  title={Advanced sonar and laser range finder fusion for simultaneous localization and mapping},
+  author={Diosi, Albert and Kleeman, Lindsay},
+  booktitle={2004 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)(IEEE Cat. No. 04CH37566)},
+  volume={2},
+  pages={1854--1859},
+  year={2004},
+  organization={IEEE}
+}
+@article{adi2017distance,
+  title={Distance measurement with a stereo camera},
+  author={Adi, Kusworo and Widodo, Catur Edi},
+  journal={Int. J. Innov. Res. Adv. Eng},
+  volume={4},
+  number={11},
+  pages={24--27},
+  year={2017}
+}
