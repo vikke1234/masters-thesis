@@ -1,4 +1,251 @@
 
-\appendix{Sample Appendix\label{appendix:sample}}
+\appendix{Interviews\label{appendix:interviews}}
+\textbf{TODO: add automotive}
+\section{Interview with Person 1}\label{interview:vrar}
+[7:38 PM]Viktor: Hi, so I've got the following questions
 
-You can add one or more appendices to your thesis.
+1. what field are you in
+2. what library do you use (libcamera, argus, etc.) and why did you pick that
+3. did you compare other alternatives
+4. do you have any issues/annoyances with the current API that you'd like to highlight
+5. are there any features you'd like to see in the API
+6. do you think frame based APIs are preferrable to a streaming based one where it would implicitly capture images for you
+7. have you heard of the camera standardization effort Kamaros? if so, do you have any thoughts on it?
+8. are there any other inputs you'd like to give?
+
+[7:57 PM]Person 1:
+1. im a sr software engineer at a company making vr/ar image quality testers, as well as some older touchscreen testing devices and a bunch of custom stuff
+2. generally we use the manufacturers' genicam library, either an already-existing python binding or our own. for example basler has pypylon. our language of choice is python, and this has been the easiest and most reliable way of getting machine vision cameras working
+3. yes, generally there arent many alternatives, at least for the cameras we need. opencv generally has more "consumer device" support, and halcon is extremely expensive
+4. every manufacturer has their own library and their cameras may not work with each others' genicam library, even though they are supposed to be standardized. stuff like property naming has been messy also, leading us to creating our own wrapper on top of all the libraries to standardize things.
+5. no, it can support basically anything already.
+6. both have their uses. we mostly use triggered image capture (I guess thats what you mean by frame based) to ensure we capture images at the exact correct image. when this isnt important, streaming data is obviously nice to increase throughput.
+7. no.
+8. mostly just curious as to what kind of cameras you are looking at with this stuff
+
+[8:25 PM]Viktor:
+generally we use the manufacturers' genicam library
+Oh I see, I'm not very familiar with genicam, I've heard the camera configuration is largely xml based, so memory is likely not very constrained then? Additionally, I assume the code runs on normal desktop computers over small embedded systems?
+
+yes, generally there arent many alternatives, at least for the cameras we need.
+have you had a look at the open camera stack on Raspberry Pi using libcamera or the Nvidia Jetson with Argus, both support a variety of sensors.
+
+opencv generally has more "consumer device" support
+are you using some specialized sensors?
+
+every manufacturer has their own library and their cameras may not work with each others' genicam library, even though they are supposed to be standardized. stuff like property naming has been messy also, leading us to creating our own wrapper on top of all the libraries to standardize things
+yeah this is an awful situation, sensor manufacturers also don't really want to standardize things as they've said "standardization halts development". Hopefully Kamaros will at least help with this, though we might just end up with another xkcd 927 situation
+
+(I guess thats what you mean by frame based)
+yeah, as in explicitly capturing frames each time you want one. Is streaming possible with genicam? I've been meaning to look into it, though lately I've been focusing on the embedded APIs
+
+mostly just curious as to what kind of cameras you are looking at with this stuff
+I'm a junior dev working on image signal processors. For this I've been now writing a thesis around camera systems in general to get a better overview of the field, how cameras are used in robotics, automotive etc.
+
+[8:32 PM]Person 1:
+Oh I see, I'm not very familiar with genicam, I've heard the camera configuration is largely xml based, so memory is likely not very constrained then? Additionally, I assume the code runs on normal desktop computers over small embedded systems?
+yes. recently i was debugging an oom issue on one of our systems, and we fixed it by upgrading to 64gb or 128gb ram (i forget which)
+
+have you had a look at the open camera stack on Raspberry Pi using libcamera or the Nvidia Jetson with Argus, both support a variety of sensors.
+i've had some coffee break talks with coworkers some years ago, but hasnt really gone anywhere. we don't do the kind of volumes where custom stuff makes sense, and end up choosing a camera based on the sensor parameters mostly. having support for a few manufacturers already is giving us a very large variety of options to choose from, instead of manufacturing our own things. with rpi etc size is also a concern
+
+are you using some specialized sensors?
+im not really familiar with them, since we have optical engineers who choose the sensors to use. some more specialized applications have used 10 or 12 bit sensors, infrared, very small pixel size, high pixel density, stuff like that.
+
+yeah this is an awful situation, sensor manufacturers also don't really want to standardize things as they've said "standardization halts development". Hopefully Kamaros will at least help with this, though we might just end up with another xkcd 927 situation
+for us, having a single genicam implementation that manufacturers would base their libraries off of would be a much better place to be. that way the manufacturer-specific stuff could be brought in as an extension, or ignored if not needed.
+for example the basler genicam implementation actually blocks using any other camera with it.
+
+Is streaming possible with genicam?
+yes.
+
+[8:43 PM]Viktor:
+we don't do the kind of volumes where custom stuff makes sense, and end up choosing a camera based on the sensor parameters mostly
+oh I see, yeah cost might go up if this would be done
+
+with rpi etc size is also a concern
+could you elaborate?
+
+for example the basler genicam implementation actually blocks using any other camera with it.
+that sounds very hostile... I do hope that this would get better in the future, afaik there's been little industry effort in standardizing sensor configuration. If someone manages to convince Sony things may change though
+
+[8:46 PM]Person 1:
+could you elaborate?
+we dont have a lot of space for cameras usually. the small form factor of machine vision cameras has been good. maybe custom pcb rpi or something can be small, but it's always about cost.
+
+that sounds very hostile... I do hope that this would get better in the future, afaik there's been little industry effort in standardizing sensor configuration. If someone manages to convince Sony things may change though
+its really dumb and even makes us consider our own genicam implementation. interestinly hikvision drivers work with most if not all other cameras...
+
+[8:54 PM]Viktor:
+we dont have a lot of space for cameras usually. the small form factor of machine vision cameras has been good
+oh I see
+
+its really dumb and even makes us consider our own genicam implementation. interestinly hikvision drivers work with most if not all other cameras...
+are sensors often documented publicly sufficiently for this?
+
+[8:55 PM]Person 1:
+are sensors often documented publicly sufficiently for this?
+we dont interface with the sensors directly, rather with the "camera" itself via ethernet
+
+[9:00 PM]Viktor: oh I see, by the way, to what level do you configure the cameras? Do you change any of the autocontrol algorithms or do you mainly just want a decent image out?
+
+[9:01 PM]Person 1: we generally dont use any of the automatic stuff
+
+[9:02 PM]Person 1: depends on application, but most of the time, just set a static exposure time, turn off any kind of automatic stuff, turn off gain/digital shift etc, set bit depth/color settings, configure networking, and just get raw images out
+
+[9:12 PM]Viktor: do you just use the bayer images over encoded jpegs?
+
+[9:14 PM]Person 1: uhhhhh
+
+[9:14 PM]Person 1: rarely bayer exactly but yeah, raw pixel data
+
+[9:15 PM]Person 1: if we end up saving it we usually encode it to png (if exact data is important) or jpg (just for viewing)
+
+[9:15 PM]Person 1: or if we want to easily load it again we might do numpy binary format
+
+[9:21 PM]Viktor: alright, I think that's all the questions I have, thank you so much for your time!
+
+\section{Interview With Person 2}
+Person 2:
+
+1. What field are you in?
+Automotive Industries, mainly platform development of infotainment systems, Graphics
+
+2. What library do you use (V4L2, Argus, etc.) and why did you pick that?
+V4L2 , media-ctl, Android services like EVS, CameraHAL and some proprietary API's like  QCarCam.
+Most of the time, it was not my decision; instead, it was given from the SoC's board support package (BSP).
+
+P.S.. the question is not quite clear, library for what?
+
+3. Did you compare other alternatives?
+Not really because the effort to use something else than in the BSP is very high.
+
+4. Do you have any issues/annoyances with the current API that you’d like to highlight?
+Typically the V4L2 API doesn't expose the full potential of the underlying hardware and to add this without violating the API design. Almost all projects require some proprietary extensions to cover the project use cases.
+
+5. Are there any features you’d like to see in the API?
+Some of the high-level use cases:
+ - hotplug support for newly attached devices or device features.
+ - get access to the same device from different Applications.
+ - better event propagation between the elements of the pipeline, bi-directional.
+ - better per-frame control,
+ - better error handling and propagation. most of the time the error codes are very abstract and cannot be used to understand the problem.
+
+6. Do you think frame-based APIs are preferable to streaming-based ones which would implicitly capture images for you?
+Looking at the complete pipeline, from the camera sensor to the display panel frame-based APIs fit better, from my point of view because there are different explicit processing steps where some interaction with the frame is needed to fulfill the use case. I can imagine that for a well-defined, fixed pipeline, streaming API might be easier to use.
+Overall I think it is a different paradigm of thinking, I'm used to the frame-based APIs and feel comfortable with it, can easily imagine how the pipeline will look like and how to interact with it.
+
+7. Have you heard of the camera standardization effort Kamaros? If so, do you have any thoughts on it?
+Yes ;-) I'm a member of the working group.
+
+8. Are there any other inputs you’d like to give?
+looking forward if there will be a well-defined open standard to better cover the  Camera use cases in an embedded device ;-)
+
+Good look and success with Master Thesis !
+
+Viktor Horsmanheimo 2:09 PM
+Thank you so much! The thesis is very nearly (hopefully) done.
+
+>P.S.. the question is not quite clear, library for what?
+I just wanted to get an overview of what libraries people largely use for camera control
+
+>better per-frame control
+Could you elaborate on this? As most (all?) current APIs are request based, doesn't this allow for "perfect" frame control?
+Oct 15
+
+Person 2:
+
+>better per-frame control
+What I means is the correlation between the setting change and the delivered frame, in the current API you don't know on which frame the provided setting is already applied. Since the pipeline can be quite long and have a few elements and also several frames processed at the same time in it. with this it is difficult to find out on which frame the setting is already applied.
+
+hope this helps to understand what I mean ...
+
+Viktor Horsmanheimo 1:31 PM
+Ohh! I see, thank you for the clarification
+
+\appendix{Code\label{appendix:code}}
+\section{V4L2 capture\label{appendix:section:v4l2}}
+Compile using \textit{gcc -lv4l2 file.c}, tested on a Thinkpad T480. License:
+GPLv2 or higher
+
+\begin{lstlisting}[language=C]
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <sys/types.h>
+#include <sys/time.h>
+#include <sys/mman.h>
+#include <linux/videodev2.h>
+#include "libv4l2.h"
+#include <errno.h>
+
+// A wrapper around ioctl, without the wait loop the
+// CPU runs too fast for the camera to react
+static void xioctl(int fh, int request, void *arg) {
+	int r;
+	do {
+		r = v4l2_ioctl(fh, request, arg);
+	} while (r == -1 && ((errno == EINTR) || (errno == EAGAIN)));
+
+	if (r == -1) {
+		perror("xioctl");
+		exit(EXIT_FAILURE);
+	}
+}
+
+int main() {
+	struct v4l2_buffer buf = {0};
+	// Open camera device for streaming
+	int fd = v4l2_open("/dev/video0",
+					O_RDWR | O_NONBLOCK, 0);
+	struct buffer {
+		void   *start;
+		size_t length;
+	} buffer = {0};
+
+	struct v4l2_format fmt = {
+		.type = V4L2_BUF_TYPE_VIDEO_CAPTURE,
+		.fmt.pix = {.width = 640, .height = 480,
+			.pixelformat = V4L2_PIX_FMT_RGB24,
+			.field = V4L2_FIELD_INTERLACED}};
+	xioctl(fd, VIDIOC_S_FMT, &fmt);
+
+	struct v4l2_requestbuffers req = {
+        1,
+        V4L2_BUF_TYPE_VIDEO_CAPTURE,
+        V4L2_MEMORY_MMAP };
+
+	// Prepare DMA for buffers
+	xioctl(fd, VIDIOC_REQBUFS, &req);
+
+	buf.type        = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+	buf.memory      = V4L2_MEMORY_MMAP;
+	buf.index       = 0;
+	// Queue a buffer for capture
+	xioctl(fd, VIDIOC_QBUF, &buf);
+
+	buffer.length = buf.length;
+	// Map DMA handle to userspace allowing us to
+    // read the buffer
+	buffer.start = v4l2_mmap(NULL, buf.length,
+                      PROT_READ | PROT_WRITE,
+                      MAP_SHARED,
+	fd, buf.m.offset);
+	enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+	// Turn on streaming and dequeue the captured image
+	xioctl(fd, VIDIOC_STREAMON, &type);
+	xioctl(fd, VIDIOC_DQBUF, &buf);
+	xioctl(fd, VIDIOC_STREAMOFF, &type);
+
+	FILE *fout = fopen("out.ppm", "w");
+	fprintf(fout, "P6\n%d %d 255\n",
+		 fmt.fmt.pix.width, fmt.fmt.pix.height);
+	fwrite(buffer.start, buf.bytesused, 1, fout);
+	fclose(fout);
+	v4l2_munmap(buffer.start, buffer.length);
+	v4l2_close(fd);
+	return 0;
+}
+\end{lstlisting}
