@@ -552,7 +552,10 @@ an IP packet. Once it is within range, it is back to CSI-2.
 
 CSI-2 uses two different technologies, namely C-PHY and D-PHY. These can
 transport data at different speeds. Along with the fast C-PHY/D-PHY lanes,
-control lanes are also provided that control the camera over I$^2$C.
+control lanes are also provided that control the camera over I$^2$C. Each API
+can be used on the same chip, if speed is needed C-PHY should be used. Though
+D-PHY is much simpler to implement as it is a basic master/slave system similar
+to I$^2$C.
 
 D-PHY uses a dedicated lane for clock, this means that it only has two lanes for
 data transport. It is a very simple synchronous protocol, it does not encode
