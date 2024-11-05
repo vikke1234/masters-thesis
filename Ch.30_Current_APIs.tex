@@ -100,6 +100,61 @@ to the user as is, the autocontrol algorithms can be configured through the
 Through the use of EGLStreams, Argus is able to do zero-copy output to for
 displays and encoders\footnote{https://docs.nvidia.com/jetson/l4t-multimedia/l4t\_mm\_10\_camera\_recording.html}.
 
+The capture process in Argus is highly structured and optimized for
+performance, leveraging NVIDIA’s hardware capabilities. It begins with the
+creation of a \textit{CameraProvider} object, which serves as the entry point
+to the Argus API. The \textit{CameraProvider} enumerates all available camera
+devices on the system and provides access to them through
+\textit{CameraDevice} objects. Each \textit{CameraDevice} represents a
+physical or virtual camera in the system.
+
+Once a specific \textit{CameraDevice} is selected, a \textit{CaptureSession} is
+created through the \textit{ICaptureSession} interface. This session manages
+all capture operations and control the camera settings and output streams. The
+next step involves creating a \textit{Request} object using the
+\textit{ICaptureRequest::createRequest} method. The \textit{Request} object
+specifies how a capture should be performed, including sensor settings (such as
+resolution and exposure time) and output stream configurations.
+
+Argus supports two primary types of output streams: EGLStreams and Buffer
+OutputStreams. EGLStreams are particularly powerful because they enable
+zero-copy data transfers between the camera and other system components such as
+OpenGL, CUDA, or GStreamer. This eliminates the need for unnecessary buffer
+copies, significantly improving performance in real-time applications like
+video streaming or computer vision tasks. Buffer OutputStreams, on the other
+hand, allow clients to manage their own buffer resources, providing more
+control over how captured data is handled.
+
+Once the \textit{Request} is configured with the desired settings, such as
+AEC, AWB, or other autocontrol algorithms, it is submitted to the
+\textit{CaptureSession}. The session processes requests either sequentially or
+concurrently, depending on how they are queued. Argus supports both capturing a
+single image and continuous streaming through repeating requests. For continuous
+captures, the \textit{ICaptureSession::repeat} method can be used to queue a request
+repeatedly until explicitly stopped. During capture, image data flows from the
+camera sensor into buffers managed by EGLStreams or Buffer OutputStreams. If an
+EGLStream is used, Argus ensures that no buffer copies occur during delivery to
+consumers like CUDA or OpenGL applications, allowing for highly efficient
+processing pipelines. Each captured frame is accompanied by metadata that
+includes information such as frame number, timestamp, exposure settings, and
+sensor-specific details.
+
+As frames are captured and processed by Argus, they are made available to
+consumers through callback mechanisms. For example, when using an EGLStream,
+frames can be acquired via the \textit{IFrameConsumer::acquireFrame} method.
+This method returns a \textit{Frame} object that contains both the image buffer
+and associated metadata. Once a frame has been processed by the consumer (e.g.,
+displayed on screen or passed to a neural network for inference), it must be
+released back to Argus using \textit{IFrame::release} to ensure proper buffer
+management. When capturing multiple frames in quick succession—such as in burst
+mode—Argus allows developers to submit multiple requests at once using the
+\textit{ICaptureSession::captureBurst} method. This ensures that all requests
+in the burst are processed together without any partial captures being
+accepted, either all the requests are captured or it captures none.
+
+Finally, when capturing operations are complete or need to be paused,
+developers can stop repeating requests using \textit{ICaptureSession::stopRepeat}, halting
+continuous capture while preserving any queued requests.
 
 \subsection{libcamera}
 \begin{figure}
@@ -110,23 +165,23 @@ displays and encoders\footnote{https://docs.nvidia.com/jetson/l4t-multimedia/l4t
     \label{fig:libcameraarch}
 \end{figure}
 
-libcamera\footnote{https://libcamera.org/} is an open-source C++ embedded camera framework that supports a large
-number of complex cameras. Complex cameras are cameras that require heavy
-hardware image processing, such as the Sony IMX 219, 477 and many more. It
-supports multiple encoders to receive images in for example PNGs/raw images.
-The primary target for libcamera is ARM processors in the form of Raspberry
-PIs, Chromebooks and Android mobile phones though many other architectures are
-also supported~\cite{libcameraStack}. Because image processing algorithms are
-often proprietary and very secret, libcamera also allows for binary blobs to be
-supplied by the vendors. The vendors do need to submit the "base case" where
-the camera can take a still image with decent quality to get the blob approved.
-These blobs are run in a separate process, communicating with libcamera though
-an API provided by the Pipeline Handler using \textit{dmabuf} handles. These
-\textit{dmabuf} handles are very effective due to the fact that they do not
-require copies. If the user wants to read the buffer, it can be mapped using
-\textit{mmap}. By default this is not done, as mapping it would require the
-\textit{Memory Management Unit} (MMU) to actually copy the data which requires
-work.
+libcamera\footnote{https://libcamera.org/} is an open-source C++ embedded
+camera framework that supports a large number of complex cameras. Complex
+cameras are cameras that require heavy hardware image processing, such as the
+Sony IMX 219, 477 and many more. It supports multiple encoders to receive
+images in for example PNGs/raw images. The primary target for libcamera is ARM
+processors in the form of Raspberry PIs, Chromebooks and Android mobile phones
+though many other architectures are also supported~\cite{libcameraStack}.
+Because image processing algorithms are often proprietary and very secret,
+libcamera also allows for binary blobs to be supplied by the vendors. The
+vendors do need to submit the "base case" where the camera can take a still
+image with decent quality to get the blob approved. These blobs are run in a
+separate process, communicating with libcamera though an API provided by the
+Pipeline Handler using \textit{dmabuf} handles. These \textit{dmabuf} handles
+are very effective due to the fact that they do not require copies. If the user
+wants to read the buffer, it can be mapped using \textit{mmap}. By default this
+is not done, as mapping it would require the \textit{Memory Management Unit}
+(MMU) to actually copy the data which requires work.
 
 In \cref{fig:libcameraarch} we can see an overview of how libcamera looks like
 from a birds eye view. libcamera provides buffer management along with a lot of
@@ -140,16 +195,37 @@ restrictions, being verified by the maintainers that they do not have any
 malicious code. Though as mentioned in the \cref{section:history} chapter,
 there are "smart sensors" where the sensor itself has an integrated ISP. These
 do not require IPAs and can instead be used as is. IPAs are only required when
-the ISP is controlled by the CPU\cite{libcameraStack}.
+the ISP is controlled by the CPU~\cite{libcameraStack}.
 
-libcamera then provides high level interfaces then that for example
-\textit{GStreamer} etc. can use. This allows each application to simply build on top
-of the same API for each ISP.
+One of libcameras most critical functionalities is its high-level interface
+for capturing images and videos. This interface allows applications to
+interact with cameras using frameworks like \textit{GStreamer}, simplifying
+building pipelines for media processing. The capture process in libcamera
+follows a structured workflow:
+
+First, before any operation, the camera must be acquired for exclusive access
+using \textit{Camera::acquire}. This ensures that no other process can interfere with
+capturing operations\footnote{\href{https://libcamera.org/api-html/classlibcamera_1_1Camera.html\#a4e60f8015f64e5897394d6677e3fb274}{Camera::acquire}}.
+Once acquired, the camera needs to be configured according to the desired
+capture parameters (e.g., resolution, format) using \textit{Camera::configure}, where
+developers define which streams will be involved in capturing and how they
+should be configured\footnote{\href{https://libcamera.org/api-html/classlibcamera_1_1Camera.html\#a4c190f4c369628e5cd96770790559a26}{Camera::configure}}.
+
+After configuration, a request object is created using \textit{Camera::createRequest}.
+This request holds buffers that will store captured frames\footnote{\href{https://libcamera.org/api-html/classlibcamera_1_1Camera.html\#a5e5a9cdeef58daec5963b4715ecd4464}{Camera::createRequest}}.
+The application fills these buffers with data before queuing them for capture.
+With the request prepared, it is queued for processing using
+\textit{Camera::queueRequest}. Once queued, libcamera handles the actual frame
+capture and processes it according to the pipeline configuration\footnote{\href{https://libcamera.org/api-html/classlibcamera_1_1Camera.html\#a7017dfeac48e842d3e33c2c2eb217d62}{Camera::queueRequest}}.
+When the capture completes, libcamera signals back to the application that the
+request has been processed using callbacks. The application can then retrieve
+and handle the captured data (e.g., saving it as an image file or passing it on
+for further processing).
 
 \subsection{HAL3 And Camera2}
 \begin{figure}
     \begin{center}
-        \includegraphics[width=0.80\textwidth]{figures/camera2.png}
+        \includegraphics[width=0.90\textwidth]{figures/camera2.png}
     \end{center}
     \caption{Camera2 and HAL3 architecture,
     \textit{image source: https://source.android.com/docs/core/camera/camera3\_requests\_hal}}\label{fig:camera2}
@@ -195,17 +271,17 @@ In \cref{fig:camera2} we can see how the pipeline works. It begins with the
 application creating a CameraManager, which serves as the central interface for
 accessing all available camera devices on the system. This manager provides a
 list of CameraDevice instances, each representing a physical camera on the
-device. Once a specific CameraDevice is selected, it is opened to establish a
-connection with the camera hardware. This step involves configuring the
-necessary settings and preparing the device for capturing images or video. The
-application then creates CaptureRequest objects, which define the parameters
-for each capture operation, such as exposure settings, focus, and output
-targets like image buffers.
+device. Once a specific CameraDevice is selected, it is opened to create a
+CameraCaptureSession in order to establish a connection with the camera
+hardware. This step involves configuring the necessary settings and preparing
+the device for capturing images or video. The application then creates
+CaptureRequest objects, which define the parameters for each capture operation,
+such as exposure settings, focus, and output targets like image buffers.
 
 These capture requests are submitted to the CameraDevice through a
 CaptureSession. This session manages the sequence of requests, ensuring they
 are processed efficiently, whether in order or concurrently, based on the
-application's requirements. The CameraDevice forwards each request to the HAL3,
+applications requirements. The CameraDevice forwards each request to the HAL3,
 which acts as an intermediary layer translating high-level requests into
 specific hardware commands.
 
@@ -243,28 +319,45 @@ advanced camera capabilities in their apps.
 
 
 \subsection{Kamaros}
-Over the years there have been some camera standardization efforts such as
-OpenKCam. These have failed though due to lack of industry interest. Today
-the Khronos group has started the camera standardization effort again with
-Kamaros.
+Over the years there have been numerous camera standardization efforts such as
+OpenKCam\footnote{https://www.khronos.org/openkcam}. However these have not been
+successful due to lack of industry interest. Today the Khronos group has
+started a push camera API standardization effort with \textit{Kamaros}\footnote{https://www.khronos.org/kamaros/}.
 
 Kamaros is a new API currently being designed. Its goal is to
 standardize embedded camera frameworks. This means that instead of needing
-three different APIs for Android, L4T, and Linux you would only need to use
-Kamaros. It would sit on top of the transport layer (CSI-2, USB etc.), allowing
-the applications to use a single API to communicate with cameras over multiple
-platforms. Though there are still many other issues in the camera world that will not
-be solved by Kamaros. Examples of these are for example camera configuration.
-Currently there is no standard way to configure cameras, the camera drivers are
-often a huge part of the code base. At the same time, there is not a lot of
-difference between them. In the future, Kamaros may try to tackle this problem
-though it is not anything that will be solved initially.
+three different APIs for Android, L4T, Linux, and Windows you would only need to
+use Kamaros. Allowing the applications to use a single API to communicate with
+cameras over multiple platforms regardless of the platform. Though there are
+still many other issues in the camera world that will not be solved by Kamaros.
+Examples of these are for example camera configuration.
 
-The API is under development, so not much can be mentioned about the API itself
-due to a spec not being out yet. It hopes to be easy to use and ability to
-leverage Vulkan for post processing. This would allow users to easily create
-cross platform code and not be highly platform dependent as it is currently.
-\cref{fig:kamaros_stack} shows where it would fit in a typical application.
+However, while Kamaros tries to address many of the current pain points in
+embedded camera development, it is not without its limitations. One of the
+biggest challenges in the camera world today is camera configuration.
+Currently, there is no standardized way to configure cameras across different
+platforms or devices. Camera drivers often make up a large portion of the
+codebase because each driver is tailored to specific hardware. Despite this
+complexity, many drivers share similar functionality but are implemented
+differently due to the lack of standardization. Kamaros may attempt to tackle
+this issue in future iterations by providing more standardized ways to
+configure cameras, but this is not something that will be solved initially.
+
+Another exciting aspect of Kamaros is its potential integration with Vulkan,
+Khronoss low-overhead graphics and compute APIs. By leveraging Vulkan for
+post-processing tasks, Kamaros could enable developers to take full advantage
+of GPU acceleration for complex image processing tasks such as filtering,
+noise reduction, or even real-time video processing. This would allow
+developers to build highly efficient cross-platform applications without being
+tied down by specific hardware or operating systems.
+
+That said, Kamaros is still in its early stages of development, and much
+remains unknown about its final form. The specification has not yet been
+released, so it is difficult to comment on the specifics of how the API will
+function or what features it will include at launch. However, based on
+Khronoss track record with other successful standards like OpenGL and Vulkan,
+there is reason to be optimistic about Kamaros's potential impact on the
+embedded camera ecosystem.
 
 \begin{figure}
     \begin{center}
@@ -311,7 +404,7 @@ As advancements in embedded systems continue, GenICam is poised to expand its
 presence beyond traditional PC-based machine vision applications into embedded
 environments\footnote{https://cdn.alliedvision.com/fileadmin/content/documents/products/cameras/various/appnote/CSI-2/GenICam-WhitePaper.pdf}.
 This expansion offers flexibility and performance improvements
-for industrial inspection and quality control tasks. Overall, GenICam's
+for industrial inspection and quality control tasks. Overall, GenICams
 standardized approach significantly enhances the efficiency of developing
 machine vision applications by providing a consistent framework for camera
 control and data acquisition.
@@ -334,27 +427,31 @@ The interviews also suggested that the documentation is often not sufficient,
 being difficult to decipher how things are done.
 
 \section{API Comparison}\label{section:comparison}
-\begin{table}[h]
+\begin{table}
     \centering
-    \begin{tabular}{|l|c|c|c|}
+    \begin{tabular}{|c|c|c|c|}
         \hline
-        \textbf{Feature} & \textbf{Argus} & \textbf{libcamera} & \textbf{Android} \\ \hline
-        Auto focus &  & x & x \\ \hline
-        Auto White Balancing & x & x & x \\ \hline
-        Analog Gain & x & x & x \\ \hline
-        Digital Gain & x & x & x \\ \hline
+        \thead{Feature} & \thead{Argus} & \thead{libcamera} & \thead{Android} \\ \hline
+        AF &  & x & x \\ \hline
+        AWB & x & x & x \\ \hline
+        AGC & x & x & x \\ \hline
         Multi camera & x & x & x \\ \hline
         Partial images & x &  &  \\ \hline
         Open source &  & x & (x) \\ \hline
-        License & Nvidia CR & LGPLv2.1 & Apache 2.0 \\ \hline
+        License & Nvidia Copyright & LGPLv2.1 & AOSP licensing \\ \hline
         CUDA & x &  &  \\ \hline
         Platform & Tegra & Any Linux Machine & Android Systems \\ \hline
         HDR & x & x & x \\ \hline
-        Synchronized multi camera & x &  &  \\ \hline
-        OS support & L4T & Linux & Android \\ \hline
+        \makecell{Synchronized\\multi camera} & x &  &  \\ \hline
+        OS support & L4T \& Android & Linux \& Android & Android \\ \hline
         Architecture & Request based & Request based & Request based \\ \hline
         Compression &  &  &  \\ \hline
         Raw image support & x & x & x \\ \hline
+        Security &
+        \makecell{Nvidia specific,\\receives additional\\safety measures\\from automotive} &
+        \makecell{Linux system\\security configuration} &
+        \makecell{Android\\security model} \\ \hline
+        Supported cameras & >100 & 23 & Unknown \\ \hline
     \end{tabular}
     \caption{Feature comparison of camera APIs}
     \label{table:apiComparison}
@@ -364,7 +461,7 @@ While the APIs largely do the same thing, in a very similar fashion they still
 have different use cases. Each still provide unique features when it comes to
 both camera control, image processing, and the platforms they run on. In
 \cref{table:apiComparison} we can see a full list of the feature comparison
-done. Genicam is not in this comparison because it is completely dependent on
+done. Genicam is excluded in this comparison as it is completely dependent on
 the vendor. The standard itself does not provide any functionality.
 
 libcamera runs on essentially any platform that can run Linux, except for
@@ -387,25 +484,28 @@ the device in order to view them.
 
 One benefit that the Nvidia Argus has over other camera APIs, namely CUDA.
 CUDA is a very popular way to program GPUs~\cite{kalaiselvi2017survey}, this
-puts gives Argus a unique standing where it supports CUDA very well. libcamera
-on CUDA does not support importing DMA buffers very well, this is because DMA
-symbols are not exported to non GPL drivers\footnote{\href{https://github.com/torvalds/linux/blob/master/drivers/dma-buf/dma-buf.c}{dma-buf.c}}.
-This means that Nvidia drivers are not able to properly utilize the feature,
-which in turn also has a negative side effect where libcamera gives DMA buffers
-to the user, CUDA can not import them. There was an effort in 2012 to make DMA
-symbols exported to non-GPL code\footnote{\href{https://patchwork.kernel.org/project/dri-devel/patch/1349884592-32485-1-git-send-email-rmorell@nvidia.com/}{Mailing list}}
-though it did not get approved. The other APIs can use Vulkan compute which is
-a similar system as CUDA, it's open-source and maintained by the Khronos group.
+puts gives Argus a unique standing where it supports CUDA very well. CUDA does
+not support importing DMA buffers very well, this is because DMA symbols are
+not exported to non GPL drivers\footnote{\href{https://github.com/torvalds/linux/blob/master/drivers/dma-buf/dma-buf.c}{dma-buf.c}}
+which means that libcamera does not properly support CUDA. This means that
+Nvidia drivers are not able to properly utilize the feature, which in turn also
+has a negative side effect where libcamera gives DMA buffers to the user, CUDA
+can not import them. There was an effort in 2012 to make DMA symbols exported
+to non-GPL code\footnote{\href{https://patchwork.kernel.org/project/dri-devel/patch/1349884592-32485-1-git-send-email-rmorell@nvidia.com/}{Mailing
+list}} though it did not get approved. The other APIs can use Vulkan compute
+which is a similar system as CUDA, it is open-source and maintained by the
+Khronos group.
 
-Stereo camera support is currently only offered by Argus and Genicam, the allow
+Stereo camera support is currently only offered by Argus, the allow
 to time the capture requests very closely and measure when they were captured.
+Genicam has varying support for this, though as previously mentioned, it is very
+vendor specific and the manual must be referenced to see if it is. Camera2 and
+libcamera have support for multi camera use cases, though they do not have the
+synchronization support necessary.
 
-Currently no other API allows for this. Camera2 and libcamera have support for
-multi camera use cases, though they do not have the timing support necessary.
-
-While the APIs do not directly support encoding YUV images to for example JPEG directly.
-This process is often not very difficult for the user to implement using
-dedicated libraries such as jpeglib or NvJPEGEncoder that enable JPEG creation,
-a sample for jpeglib can be found in the raspberry pi apps tree\footnote{https://github.com/raspberrypi/rpicam-apps/blob/main/apps/rpicam\_jpeg.cpp}.
-
+While the APIs do not directly support encoding YUV images to for example JPEG
+directly. This process is often not very difficult for the user to implement
+using dedicated libraries such as jpeglib or NvJPEGEncoder that enable JPEG
+creation, a sample for jpeglib can be found in the Raspberry Pi apps
+tree\footnote{https://github.com/raspberrypi/rpicam-apps/blob/main/apps/rpicam\_jpeg.cpp}.
 
