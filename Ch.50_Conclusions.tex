@@ -1,1 +1,27 @@
-\chapter{Conclusions\label{conclusions}}
+\chapter{Conclusion\label{section:conclusions}}
+In this Thesis we have explored the complex world of modern camera architecture.
+The study has provided an in depth overview of modern camera hardware, provding
+an analysis how ISPs, autocontrol algorithms, and various camera APIs work.
+
+One of the key takeaways from this is how complex modern cameras are, involving
+a very elaborate pipeline from the sensor to produce a final image.
+Despite the secrecy with these pipelines, there are great efforts into open
+sourcing many of the components. With Raspberry Pi having an open source camera
+stack, and libcamera providing the necessary high level support for people to
+use on various platforms.
+
+When comparing the APIs, while they largely do the same thing, and due to their
+history of being largely based around the android HAL3, they look very much the
+same. They still serve slightly different purposes. Camera2 is the camera API
+for all Android systems, while libcamrea is the open source initiative that
+will hopefully bring vendors to use more standardized ways for camera
+configuration. Argus on the other hand is optimized for speed, it allows for
+efficient CUDA usage, allowing one to use GPUs in a very efficient manner.
+
+In conclusion, while significant progress has been made in both hardware and
+software components. There is still much room for improvement, especially in
+terms of standardization and open source collaboration. As computational
+photography continues to evolve, we can expect more breakthrough that will
+push the boundaries of what cameras can achieve in terms of quality and
+performance. Though at what point can we still call an image a "real" image,
+and not generated content.
