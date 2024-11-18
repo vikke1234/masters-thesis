@@ -1,23 +1,27 @@
 \chapter{Current APIs\label{section:currentAPIs}}
-\textbf{TODO: create high level diagrams of the other APIs}
+As mentioned in the history section \cref{section:history}, cameras no longer
+really have their own integrated ISP that they manage. This means that the
+host CPU has to control the ISP, which is no simple matter. This has lead to
+quite complex camera APIs to allow applications to control these
+\textit{complex cameras} that require heavy image processing post capture.
 
 In this chapter we will first give an overview of what APIs are available for
 use, after which we will compare the APIs with features, finally covering
-feature differences and performance statistics. Unfortunately there are no
-direct statistics that show how much each API is used. Some were gathered
-through interviews, although the sample size is not large enough to say
-conclusively whether one is used more or another.
+feature differences. Unfortunately there are no direct statistics that show how
+much each API is used. Some were gathered through interviews, although the
+sample size is not large enough to say conclusively whether one is used more or
+another.
 
 There is an additional camera API from Nvidia that we will not cover, namely
-SIPL. This requires Nvidia specific hardware that is not easy to acquire. The
+SIPL\footnote{\url{https://docs.nvidia.com/drive/drive_os_5.1.6.1L/nvvib_docs/index.html\#page/DRIVE_OS_Linux_SDK_Development_Guide/NvMedia/nvmedia_concept_nvsipl.html}}. This requires Nvidia specific hardware that is not easy to acquire. The
 main difference with it is that it is a streaming based API that is safety
-certified\footnote{\href{https://developer.nvidia.com/docs/drive/drive-os/6.0.8.1/public/drive-os-linux-sdk/common/topics/nvmedia\_concept\_nvsipl/PlatformCameraConfiguration.html}{developer.nvidia.com}},
-meaning it can be used in automotive.
+certified\footnote{\url{https://developer.nvidia.com/docs/drive/drive-os/6.0.8.1/public/drive-os-linux-sdk/common/topics/nvmedia\_concept\_nvsipl/PlatformCameraConfiguration.html}},
+meaning it can be used in safety critical applications.
 
 \section{Introduction to camera APIs}
 \subsection{Video For Linux 2}\label{section:v4l2}
 \textit{Video For Linux 2} (V4L2) serves as the fundamental low-level API
-within Linux\footnote{https://www.kernel.org/doc/html/v4.9/media/intro.html}.
+within Linux\footnote{\url{https://www.kernel.org/doc/html/v4.9/media/intro.html}}.
 It is designed for managing video capture and output devices (among other things
 like radio). It serves as the foundation for many of the higher-level APIs that
 offer more user friendly approaches for video processing. V4L2 uses a very
@@ -27,16 +31,17 @@ devices, with standard ways to control almost any camera device.
 V4L2 is a very low level API, it does not provide any of the convenience
 features found  in modern APIs. This allows V4L2 to have a very intricate
 control over the camera, though requiring more management by the developer.
-Being a C api, there are few encapsulating structures for things like images.
+Being a C API, there are few encapsulating structures for things like images.
 Instead everything is treated as buffers that the user must manage directly,
 this can lead to more complexity and potential errors as developers are known
 to not be very good at this~\cite{van2012memory}. The camera is controlled
 using \textit{ioctl} commands. \textit{ioctl} commands are ways to configure
 devices that normally are not configurable by file operations directly.
 
-V4L2 still is widely used in fields such as robotics\footnote{Personal
-communication, October 2024}, although hopefully we will move away from it once
-libraries like Argus and libcamera gain traction.
+V4L2 still is widely used in many fields (Google Scholar search for "V4L2"
+provides roughly 450 results since 2020), although hopefully we will move away from it
+once libraries like Argus (\cref{section:argus}) and libcamera
+(\cref{section:libcamera}) gain traction.
 
 V4L2 is split into two libraries, the kernel side which is known as V4L2, and the
 userspace library known as libv4l2. The userspace library often just wraps the
@@ -59,46 +64,26 @@ where it is much clearer when you capture the image.
 \end{figure}
 
 
-Argus\footnote{https://docs.nvidia.com/jetson/l4t-multimedia/group\_\_LibargusAPI.html}
+Argus\footnote{\url{https://docs.nvidia.com/jetson/l4t-multimedia/group\_\_LibargusAPI.html}}
 is a camera API that is developed by Nvidia. Argus runs only on Nvidia
 hardware, such as the Jetson Orin Nano Developer Kit. While the API is
-proprietary, this chapter aims to give an overview of how the API works and
-fits into the grand scheme of things.
+proprietary as such few details of the internals are available, this chapter
+aims to give an overview of how the API works and fits into the grand scheme of
+things.
 
-Argus is roughly based on V4L2 though effectively a re-implementation\footnote{Personal communication, Laurent Pitchard, 2024}.
-At the time Argus was created, V4L2 was still in an early stage. It did not
-supporting a variety of features such as multicamera setups etc. hence Argus
-was created in order to add the missing features easily. These days V4L2 and
-Argus are very close though in later chapters we will give an overview of what
-pros and cons each has.
-
-The reason Argus does not use V4L2 is largely a historical one at this point.
-At the time Argus was created V4L2 was in an early stage, it had very limited
-features. Nvidia created Argus in order to leviate these issues but ended up
-with an API that is very similar to V4L2. Automotive for example needed support
-for multi camera use cases, this was something that was not supported in V4L2 at
-the time.
-
-Over time, the API has aged a little though. Today it is still very dependent
-on EGL. Like OpenGL, EGL is a very old API, today it does not receive many
-updates. Effectively only when requested by big customers, even then it is
-almost exclusively to enable emulation using Vulkan\footnote{Tony Zlatinski,
-Personal communication, October 2024}. The issue with OpenGL and EGL is that it
-assumes an internal state. While this state allows users to create applications
-quickly, avoiding much boilerplate, it also sets a "glass ceiling". This
-ceiling sets a limit on how fast applications can run as certain things can not
-be optimized. This is why Vulkan was created, to allow the developer to specify
-everything, though requiring more work to set up.
+Argus uses an internal V4L2 implementation\footnote{\url{https://github.com/kbingham/libcamera/issues/81}}
+as at the time that Argus was developed V4L2 was not fully fleshed out. It was
+missing support for various use cases like multicamera setups\footnote{Personal communication, Laurent Pitchard 2024}.
+These days the implementations are very similar in features though they're not
+directly compatible still.
 
 In \cref{fig:argusblock} we can see a block diagram of how Argus roughly works.
 It has quite a similar architecture as libcamera (as seen in
-\cref{fig:libcameraarch}), the main difference is that there are no IPAs that
+\cref{fig:libcameraarch}), the main difference is that there are no \textit{Image Processing Algorithms} (IPAs) that
 are exposed to the user as these are trade secrets. The algorithms are provided
 to the user as is, the autocontrol algorithms can be configured through the
 \textit{Request} class where the settings are specified.
 
-Through the use of EGLStreams, Argus is able to do zero-copy output to for
-displays and encoders\footnote{https://docs.nvidia.com/jetson/l4t-multimedia/l4t\_mm\_10\_camera\_recording.html}.
 
 The capture process in Argus is highly structured and optimized for
 performance, leveraging NVIDIA’s hardware capabilities. It begins with the
@@ -119,11 +104,11 @@ resolution and exposure time) and output stream configurations.
 Argus supports two primary types of output streams: EGLStreams and Buffer
 OutputStreams. EGLStreams are particularly powerful because they enable
 zero-copy data transfers between the camera and other system components such as
-OpenGL, CUDA, or GStreamer. This eliminates the need for unnecessary buffer
-copies, significantly improving performance in real-time applications like
-video streaming or computer vision tasks. Buffer OutputStreams, on the other
-hand, allow clients to manage their own buffer resources, providing more
-control over how captured data is handled.
+OpenGL, CUDA, or GStreamer\footnote{\url{https://docs.nvidia.com/jetson/l4t-multimedia/l4t\_mm\_10\_camera\_recording.html}}.
+This eliminates the need for unnecessary buffer copies, significantly improving
+performance in real-time applications like video streaming or computer vision
+tasks. Buffer OutputStreams, on the other hand, allow clients to manage their
+own buffer resources, providing more control over how captured data is handled.
 
 Once the \textit{Request} is configured with the desired settings, such as
 AEC, AWB, or other autocontrol algorithms, it is submitted to the
@@ -156,7 +141,20 @@ Finally, when capturing operations are complete or need to be paused,
 developers can stop repeating requests using \textit{ICaptureSession::stopRepeat}, halting
 continuous capture while preserving any queued requests.
 
-\subsection{libcamera}
+Over time though, the API has aged a little, today it is still very dependent
+on EGL. EGL acts as a bridge between the native windowing system and the OpenGL rendering API.
+Like OpenGL, EGL is a very old API, today it does not receive many
+updates. Effectively only when requested by big customers, even then it is
+almost exclusively to enable emulation using Vulkan\footnote{Tony Zlatinski,
+Personal communication, October 2024}\footnote{\url{https://www.vulkan.org/}}.
+The issue with OpenGL and EGL is that it assumes an internal state. While this
+state allows users to create applications quickly, avoiding much boilerplate,
+it also sets a "glass ceiling". This ceiling sets a limit on how fast
+applications can run as certain things can not be optimized. This is why Vulkan
+was created, to allow the developer to specify everything, though requiring
+more work to set up.
+
+\subsection{libcamera}\label{section:libcamera}
 \begin{figure}
     \begin{center}
         \includegraphics[width=0.60\textwidth]{figures/libcameraarch.png}
@@ -165,10 +163,8 @@ continuous capture while preserving any queued requests.
     \label{fig:libcameraarch}
 \end{figure}
 
-libcamera\footnote{https://libcamera.org/} is an open-source C++ embedded
-camera framework that supports a large number of complex cameras. Complex
-cameras are cameras that require heavy hardware image processing, such as the
-Sony IMX 219, 477 and many more. It supports multiple encoders to receive
+libcamera\footnote{\url{https://libcamera.org/}} is an open-source C++ embedded
+camera framework that supports a large number of complex cameras.  It supports multiple encoders to receive
 images in for example PNGs/raw images. The primary target for libcamera is ARM
 processors in the form of Raspberry PIs, Chromebooks and Android mobile phones
 though many other architectures are also supported~\cite{libcameraStack}.
@@ -185,7 +181,7 @@ is not done, as mapping it would require the \textit{Memory Management Unit}
 
 In \cref{fig:libcameraarch} we can see an overview of how libcamera looks like
 from a birds eye view. libcamera provides buffer management along with a lot of
-helper functions that allow the vendors to focus on what really matter; the
+helper functions that allow the vendors to focus on what really matters; the
 IPAs. The vendors are encouraged to open source the IPAs as maintaining a fork
 is expensive. Additionally if the IPA is closed source there are some
 restrictions: in order to ensure that the IPAs do not run any malicious code it
@@ -205,18 +201,18 @@ follows a structured workflow:
 
 First, before any operation, the camera must be acquired for exclusive access
 using \textit{Camera::acquire}. This ensures that no other process can interfere with
-capturing operations\footnote{\href{https://libcamera.org/api-html/classlibcamera_1_1Camera.html\#a4e60f8015f64e5897394d6677e3fb274}{Camera::acquire}}.
+capturing operations\footnote{\url{https://libcamera.org/api-html/classlibcamera_1_1Camera.html\#a4e60f8015f64e5897394d6677e3fb274}}.
 Once acquired, the camera needs to be configured according to the desired
 capture parameters (e.g., resolution, format) using \textit{Camera::configure}, where
 developers define which streams will be involved in capturing and how they
-should be configured\footnote{\href{https://libcamera.org/api-html/classlibcamera_1_1Camera.html\#a4c190f4c369628e5cd96770790559a26}{Camera::configure}}.
+should be configured\footnote{\url{https://libcamera.org/api-html/classlibcamera_1_1Camera.html\#a4c190f4c369628e5cd96770790559a26}}.
 
 After configuration, a request object is created using \textit{Camera::createRequest}.
-This request holds buffers that will store captured frames\footnote{\href{https://libcamera.org/api-html/classlibcamera_1_1Camera.html\#a5e5a9cdeef58daec5963b4715ecd4464}{Camera::createRequest}}.
+This request holds buffers that will store captured frames\footnote{\url{https://libcamera.org/api-html/classlibcamera_1_1Camera.html\#a5e5a9cdeef58daec5963b4715ecd4464}}.
 The application fills these buffers with data before queuing them for capture.
 With the request prepared, it is queued for processing using
 \textit{Camera::queueRequest}. Once queued, libcamera handles the actual frame
-capture and processes it according to the pipeline configuration\footnote{\href{https://libcamera.org/api-html/classlibcamera_1_1Camera.html\#a7017dfeac48e842d3e33c2c2eb217d62}{Camera::queueRequest}}.
+capture and processes it according to the pipeline configuration\footnote{\url{https://libcamera.org/api-html/classlibcamera_1_1Camera.html\#a7017dfeac48e842d3e33c2c2eb217d62}}.
 When the capture completes, libcamera signals back to the application that the
 request has been processed using callbacks. The application can then retrieve
 and handle the captured data (e.g., saving it as an image file or passing it on
@@ -228,13 +224,13 @@ for further processing).
         \includegraphics[width=0.90\textwidth]{figures/camera2.png}
     \end{center}
     \caption{Camera2 and HAL3 architecture,
-    \textit{image source: https://source.android.com/docs/core/camera/camera3\_requests\_hal}}\label{fig:camera2}
+    \textit{image source: \url{https://source.android.com/docs/core/camera/camera3\_requests\_hal}}}\label{fig:camera2}
 \end{figure}
 
 
 On Android, the camera system is structured around two primary APIs: the
-Hardware Abstraction Layer 3\footnote{https://source.android.com/docs/core/camera/camera3} (HAL3)
-and Camera2\footnote{https://developer.android.com/media/camera/camera2}. HAL3
+Hardware Abstraction Layer 3\footnote{\url{https://source.android.com/docs/core/camera/camera3}} (HAL3)
+and Camera2\footnote{\url{https://developer.android.com/media/camera/camera2}}. HAL3
 is a low-level interface that provides the means for communicating with the
 camera hardware and the Android framework, ensuring consistent interaction.
 While HAL3 sits on roughly the same abstraction level as libcamera and Argus,
@@ -305,7 +301,7 @@ captured on Android devices.
 
 Despite its powerful tools, Camera2 introduces complexity due to
 device-specific configurations and potential quirks across different Android
-versions. To address these challenges, Google introduced CameraX\footnote{https://developer.android.com/media/camera/camerax},
+versions. To address these challenges, Google introduced CameraX\footnote{\url{https://developer.android.com/media/camera/camerax}},
 a library designed to simplify camera app development by abstracting some of
 these complexities and ensuring compatibility across devices. CameraX will not
 be covered in this Thesis.
@@ -320,9 +316,9 @@ advanced camera capabilities in their apps.
 
 \subsection{Kamaros}
 Over the years there have been numerous camera standardization efforts such as
-OpenKCam\footnote{https://www.khronos.org/openkcam}. However these have not been
+OpenKCam\footnote{\url{https://www.khronos.org/openkcam}}. However these have not been
 successful due to lack of industry interest. Today the Khronos group has
-started a push camera API standardization effort with \textit{Kamaros}\footnote{https://www.khronos.org/kamaros/}.
+started a push camera API standardization effort with \textit{Kamaros}\footnote{\url{https://www.khronos.org/kamaros/}}.
 
 Kamaros is a new API currently being designed. Its goal is to
 standardize embedded camera frameworks. This means that instead of needing
@@ -363,11 +359,11 @@ embedded camera ecosystem.
     \begin{center}
         \includegraphics[width=0.60\textwidth]{figures/kamaros_stack.png}
     \end{center}
-    \caption[Kamaros stack]{Kamaros stack, \textit{image source: \href{https://www.khronos.org/assets/uploads/developers/presentations/Khronos\_Kamaros\_Embedded\_World\_Mar23.pdf}{Embedded world}}}\label{fig:kamaros_stack}
+    \caption[Kamaros stack]{Kamaros stack, \textit{image source: \url{https://www.khronos.org/assets/uploads/developers/presentations/Khronos\_Kamaros\_Embedded\_World\_Mar23.pdf}}}\label{fig:kamaros_stack}
 \end{figure}
 
 \subsection {GenICam}
-Generic Interface for Cameras\footnote{\href{https://www.emva.org/wp-content/uploads/GenICam\_Standard\_v2\_1\_1.pdf}{GenICam Standard.pdf}} (GenICam),
+Generic Interface for Cameras\footnote{\url{https://www.emva.org/wp-content/uploads/GenICam\_Standard\_v2\_1\_1.pdf}} (GenICam),
 is a standardized API developed by the European Machine Vision Association
 (EMVA) to facilitate the integration and configuration of industrial cameras.
 It provides a universal programming interface that decouples camera hardware
@@ -391,7 +387,7 @@ devices, promoting interoperability. Additionally, the Generic Transport Layer
 (GenTL) manages the transport of image data from the camera to the application,
 supporting device enumeration and data streaming.
 
-Widely adopted\footnote{https://www.emva.org/our-members/members/} in the
+Widely adopted\footnote{\url{https://www.emva.org/our-members/members/}} in the
 machine vision industry, GenICam supports various interfaces such as GigE
 Vision, USB3 Vision, and CoaXPress. This broad compatibility facilitates
 cross-manufacturer integration and reduces development time by eliminating the
@@ -402,7 +398,7 @@ compatibility and interoperability across different systems and applications.
 
 As advancements in embedded systems continue, GenICam is poised to expand its
 presence beyond traditional PC-based machine vision applications into embedded
-environments\footnote{https://cdn.alliedvision.com/fileadmin/content/documents/products/cameras/various/appnote/CSI-2/GenICam-WhitePaper.pdf}.
+environments\footnote{\url{https://cdn.alliedvision.com/fileadmin/content/documents/products/cameras/various/appnote/CSI-2/GenICam-WhitePaper.pdf}}.
 This expansion offers flexibility and performance improvements
 for industrial inspection and quality control tasks. Overall, GenICams
 standardized approach significantly enhances the efficiency of developing
@@ -414,7 +410,7 @@ While not the focus of this thesis, a small introduction to how cameras should
 be handled in userspace. In userspace most of these APIs can be used freely,
 though they do often lock the camera, this means that only one application can
 use the camera. In userspace this is often not enough, instead, we use some
-multiplexing application or daemon such as Pipewire\footnote{https://pipewire.org/}.
+multiplexing application or daemon such as Pipewire\footnote{\url{https://pipewire.org/}}.
 
 Pipewire allows the user to set permissions for each application, enabling or
 disabling the access to cameras. In the case of Pipewire, it builds on top of
@@ -431,7 +427,7 @@ being difficult to decipher how things are done.
     \centering
     \begin{tabular}{|c|c|c|c|}
         \hline
-        \thead{Feature} & \thead{Argus} & \thead{libcamera} & \thead{Android} \\ \hline
+        \thead{Feature} & \thead{Argus} & \thead{libcamera} & \thead{Camera2} \\ \hline
         AF &  & x & x \\ \hline
         AWB & x & x & x \\ \hline
         AGC & x & x & x \\ \hline
@@ -467,14 +463,14 @@ the vendor. The standard itself does not provide any functionality.
 libcamera runs on essentially any platform that can run Linux, except for
 Tegra devices running \textit{Linux For Tegra} (L4T). libcamera does not run
 on L4T because the L4T V4L2 implementation has strayed too far from the
-upstream version\footnote{https://github.com/kbingham/libcamera/issues/81} as
+upstream version\footnote{\url{https://github.com/kbingham/libcamera/issues/81}} as
 discussed in \cref{section:argus}.
 
 When examining the various APIs, libcamera appears to be more accessible for
 beginners. It offers straightforward examples for capturing images and requires
 minimal setup. A notable example is the detailed explanation provided in its
 documentation, which includes line-by-line commentary and illustrative ASCII
-diagrams to elucidate hardware components\footnote{See \href{https://github.com/kbingham/simple-cam/blob/master/simple-cam.cpp}{simple-cam.cpp}}.
+diagrams to elucidate hardware components\footnote{See \url{https://github.com/kbingham/simple-cam/blob/master/simple-cam.cpp}}.
 In contrast, the Android Camera2 API presents a more complex challenge due to
 its extensive system requirements, necessitating comprehensive knowledge for
 effective use and setup. Similarly, NVIDIA Argus provides powerful capabilities but
@@ -486,13 +482,12 @@ One benefit that the Nvidia Argus has over other camera APIs, namely CUDA.
 CUDA is a very popular way to program GPUs~\cite{kalaiselvi2017survey}, this
 puts gives Argus a unique standing where it supports CUDA very well. CUDA does
 not support importing DMA buffers very well, this is because DMA symbols are
-not exported to non GPL drivers\footnote{\href{https://github.com/torvalds/linux/blob/master/drivers/dma-buf/dma-buf.c}{dma-buf.c}}
+not exported to non GPL drivers\footnote{\url{https://github.com/torvalds/linux/blob/master/drivers/dma-buf/dma-buf.c}}
 which means that libcamera does not properly support CUDA. This means that
 Nvidia drivers are not able to properly utilize the feature, which in turn also
 has a negative side effect where libcamera gives DMA buffers to the user, CUDA
 can not import them. There was an effort in 2012 to make DMA symbols exported
-to non-GPL code\footnote{\href{https://patchwork.kernel.org/project/dri-devel/patch/1349884592-32485-1-git-send-email-rmorell@nvidia.com/}{Mailing
-list}} though it did not get approved. The other APIs can use Vulkan compute
+to non-GPL code\footnote{\url{https://patchwork.kernel.org/project/dri-devel/patch/1349884592-32485-1-git-send-email-rmorell@nvidia.com/}} though it did not get approved. The other APIs can use Vulkan compute
 which is a similar system as CUDA, it is open-source and maintained by the
 Khronos group.
 
@@ -507,5 +502,5 @@ While the APIs do not directly support encoding YUV images to for example JPEG
 directly. This process is often not very difficult for the user to implement
 using dedicated libraries such as jpeglib or NvJPEGEncoder that enable JPEG
 creation, a sample for jpeglib can be found in the Raspberry Pi apps
-tree\footnote{https://github.com/raspberrypi/rpicam-apps/blob/main/apps/rpicam\_jpeg.cpp}.
+tree\footnote{\url{https://github.com/raspberrypi/rpicam-apps/blob/main/apps/rpicam\_jpeg.cpp}}.
 

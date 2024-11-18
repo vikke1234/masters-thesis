@@ -43,17 +43,18 @@ image. Instead we use photodiodes, these are diodes that can convert light to
 current. We will cover modern sensor technologies in \cref{section:sensortechnology}.
 
 Finally in 1826 Joseph Nic\'ephore Ni\'epce captured the first image (see
-\cref{fig:worldsfiristimage})using a sliding box. So how do all of these tie
-into modern cameras, the mirror design that Roger Bacon designed is now in use
+\cref{fig:worldsfiristimage}) using a sliding box. So how do all of these tie
+into modern cameras? The mirror design that Roger Bacon designed is now in use
 in devices such as DSLRs when using the viewfinder window. When pressing down
-the shutter, the mirror flips down which is why when taking a picture the
+the shutter button, the mirror flips down which is why when taking a picture the
 viewfinder goes blank for a bit. This allows the sensor to receive light, which
 the photodiodes then turn into electricity. After the sensor receives light, it
 gives the image data to the \textit{Image Signal Processor} (ISP), the ISP is
-covered in detail in \cref{section:isp}. When using the viewfinder in a screen,
-the mirror is put down and light is given to the sensor. The ISP then processes
-this image and spits out a lower quality image for preview. As mobile phones do
-not have physical viewfinders, this is what mobile phones then use.
+covered in detail in \cref{section:isp}. DSLRs also often provide a digital
+viewfinder, in this case the optical viewfinder is bypassed and the light is
+provided to the sensor instead. The ISP then processes this image and spits out
+a lower quality image for preview. As mobile phones do not have optical
+viewfinders, this is what mobile phones then use.
 
 \begin{figure}
     \centering
@@ -96,19 +97,19 @@ detecting specular surfaces such as ultrasonic scanners~\cite{diosi2004advanced}
 
 \textbf{Stereo cameras}, like human eyes uses two cameras next to each other.
 By taking two images depth can be calculated~\cite{adi2017distance}. It is done
-by finding the same point in the two images, this is a well known problem~\cite{scharstein2002taxonomy}.
+by finding the same point in the two images, which is a well known problem~\cite{scharstein2002taxonomy}.
 There are several solutions to this problem,
 a simple one is the absolute difference in color. While we will not delve
 deeper into the algorithms here, a detailed comparison can be read from~\cite{scharstein2002taxonomy}.
 
 \subsection{Sensor Technology}\label{section:sensortechnology}
-At its core, sensors are just some photodiodes that can convert photons
-into electrical charge. In this section we will cover two common sensor this is
-done.
+At its core, sensors are just some photodiodes that can convert photons into
+electrical charge. In this section we will cover how the two common sensor type
+perform this conversion.
 
 There are multiple types of photodiodes, though the idea behind them is to
 create voltage out of photons that hit them. It does this using a
-\textit{positive-negative}(PN) junctions, a junction made of one positive and
+\textit{positive-negative} (PN) junctions, a junction made of one positive and
 one negative material that do not fill all of the electron slots in the atom.
 This allows electrons to then flow freely, allowing the charge to
 move~\cite{peterson2001works}.
@@ -134,7 +135,7 @@ with \textit{Charged Couple Device} (CCD) sensors which are known for better
 image quality technology~\cite{ieeeCMOS}. While CCDs have a better image quality, it requires
 much more power than CMOS which can be up to 100 times less power hungry~ \cite{CMOSReview}.
 This means that in many mobile devices and other low power
-devices wants CMOS over CCDs.
+devices prefer CMOS over CCDs.
 
 CMOS sensors are similar to the CMOS memory chips, unlike the memory chips the
 sensors use photodiodes along with amplifiers (\cref{fig:cmosvsccd}) over
@@ -153,7 +154,7 @@ in depth overview of what CMOS sensors are.
 \textit{Charged Couple Device} (CCD) sensors were for a long time considered
 significantly better than CMOS~\cite{ieeeCMOS}. It works using capacitors next
 to the photodiodes to create voltage out of charge which is then read out in a
-serial manner. Unlike CMOS, CDD allows you to design very small pixel sizes as
+serial manner. Unlike CMOS, CCD allows you to design very small pixel sizes as
 the pixels themselves do not require much real estate. The downside of this is
 that this creates a lot of heat, requiring good cooling~\cite{meng2016numerical}
 which is not always available in devices such as mobile phones. In
@@ -164,8 +165,6 @@ can be seen in \cref{fig:ccdbloom}.
 
 
 \subsection{Image Formats} \label{section:imageformats}
-\textbf{TODO}
-
 There are a number of different image formats, their purpose is to store an
 image in an efficient way. We will cover some common ones, while the list is
 not conclusive it will serve as a good base. We will cover two raw formats and
@@ -177,7 +176,7 @@ one encoded format.
   \caption{YCbCr chrominance encoding, \textit{image source: \href{https://en.wikipedia.org/wiki/Chroma_subsampling}{Wikipedia}}}
   \label{fig:ycbcr}
 \end{wrapfigure}
-\textbf{YCbCr} (aka. YUV) is based on three components: Y is for luminance i.e. the
+\textbf{YCbCr} (aka. YUV) is based on three components: Y is for luminance, i.e., the
 brightness, Cb is the blue-chrominance, Cr is the
 red-chrominance~\cite{safir2022rgb}. YCbCr is clever, as the human eye can see
 more luminance than chrominance, it takes this into account in the
@@ -186,6 +185,7 @@ encoding process. The different ways to encode YCbCr is described in the
 Y component. In \cref{fig:ycbcr} we can see different ways chrominance is
 encoded
 
+\pagebreak
 \textbf{RGB} similarly to YCbCr is based on three components: Red, Green, and
 Blue. There is also an optional channel, the alpha channel A which describes
 how transparent the color is. RGB can be converted to and from YCbCr in the
@@ -250,9 +250,9 @@ itu1993digital}.
 
 \subsection{Image Signal Processors} \label{section:isp}
 \textit{Image Signal Processors} (ISPs) are a highly secretive piece of
-hardware~\cite{adams2010frankencamera}. There are few systems that say they even
-have one, and even fewer that explain how they work. To understand how ISPs
-work, this section will be based on the Raspberry Pi\footnote{\label{note:tuningguide}https://datasheets.raspberrypi.com/camera/raspberry-pi-camera-guide.pdf}$^,$\footnote{https://datasheets.raspberrypi.com/camera/raspberry-pi-image-signal-processor-specification.pdf}.
+hardware~\cite{adams2010frankencamera}. There are few camera systems that say
+they even have one, and even fewer that explain how they work. To understand
+how ISPs work, this section will be based on the Raspberry Pi\footnote{\label{note:tuningguide}https://datasheets.raspberrypi.com/camera/raspberry-pi-camera-guide.pdf}$^,$\footnote{https://datasheets.raspberrypi.com/camera/raspberry-pi-image-signal-processor-specification.pdf}.
 We will be using the Raspberry Pi 5, though at times older versions may be
 mentioned. It is the only one that is open source (excluding the \textit{Register Transfer
 Level} (RTL) code) along with an open specification. RTL code is the
@@ -260,7 +260,7 @@ abstraction for how hardware is designed. It is the way to program how the
 wiring should look like in the actual chip.
 
 This section aims to give an overview of what ISPs typically do and how they
-function. Though ISPs can differ slightly though the idea is roughly the same
+function. While ISPs can differ slightly though the idea is roughly the same
 across the board.
 
 So ISPs, what exactly are they? As the name suggests, they process image
@@ -327,8 +327,8 @@ manual if it exists), most work something along the lines of:
 
     \item Apply other autocontrol algorithms, the specifics will be covered later.
 
-    \item Demosaic the image, i.e. extracting the pixel data from the raw
-        image. The is often done using a Bayer like filter, many exist though
+    \item Demosaic the image, i.e., extracting the pixel data from the raw
+        image. Often done using a Bayer like filter, many exist though
         they all work in the same way. In \cref{fig:bayer_channels} we can see
         how each of these channels are extracted. Once extracted they are
         combined into the final image as seen in \cref{fig:bayer_final}~\cite{li2008image, libcameraStack}. One
@@ -358,7 +358,7 @@ Exposure Control} (AEC), and \textit{Auto Focus} (AF)) though encompassing many
 other algorithms. When the ISP receives metadata from the sensor, it uses the
 AEC and AGC algorithm to increase or decrease the brightness to ensure that the
 image will not be too bright or dark. The purpose of AWB on the other hand is
-to make sure that the temperature of the image is correct. Blue being cold and
+to make sure that the color temperature of the image is correct. Blue being cold and
 yellow being warm, it balances the whites to reflect reality as closely as
 possible.
 
@@ -384,20 +384,27 @@ through capturing an image of a color checker chart where the colors are known.
 For each RGB value that is received, the value is normalized so that $r = R /
 G$ and $b = B / G$. When these are plotted we get a \textit{Color Temperature
 Curve} (CT curve) as seen in \cref{fig:temperatures}. This CT Curve
-represents the \textit{Planckian Locus} temperature curve which can be used to
-estimate the temperature of a color that is output by a \textit{Planckian
-Radiator}\cite{international1957international}. A Planckian Radiator is almost
-any object that outputs light through heat, although with LEDs this is not
-exactly true. The Bayesian theorem is then used to find the most probable
-temperature in this curve.
+represents the \textit{Planckian Locus}
+temperature curve which can be used to estimate the temperature of a color that
+is output by a \textit{Planckian Radiator}~\cite{international1957international}.
+A Planckian Radiator is almost any object that outputs light through heat,
+however with LEDs this is not exactly true. The Bayesian theorem is then used
+to find the most probable temperature in this curve. Once the most probable
+color temperature has been determined, the AWB algorithm then applies gain to
+the red and blue color channels to get to the desired temperature.
 
 \textit{\textbf{Auto Focus}} (AF)  adds automatic focusing on objects. While
-one of the 3As, AF is not always available depending on the sensor. In general,
-autofocus can be categorized into two different approaches: active and passive.
-The active approach is similar to how 3D cameras work (see~\cref{section:3Dcameras})
-where a laser can be fired to measure distance or something similar. Passive on
-the other hand uses \textit{Phase Detection Auto Focus} (PDAF) or
-\textit{Contrast Detection Auto Focus} (CDAF).
+one of the 3As, AF is not always available depending on the camera module, these
+cameras are called \textit{fixed focus cameras}. For AF to exist, it needs a way to move
+the lense, this is often done with a \textit{Voice-Coil Motor}~\cite{coilmotor2007}.
+This adds complexity to the camera, which depending on your use case might not be
+necessary as well as additional points of failure.
+
+In general autofocus can be categorized into two different approaches: active
+and passive. The active approach is similar to how 3D cameras work
+(see~\cref{section:3Dcameras}) where a laser can be fired to measure distance
+or something similar. Passive on the other hand uses \textit{Phase Detection
+Auto Focus} (PDAF) or \textit{Contrast Detection Auto Focus} (CDAF).
 
 \begin{figure}
     \centering
@@ -407,6 +414,7 @@ the other hand uses \textit{Phase Detection Auto Focus} (PDAF) or
         \label{fig:pdaf}
 \end{figure}
 
+\pagebreak
 \begin{wrapfigure}{r}{0.4\textwidth}
     \begin{center}
         \includegraphics[width=0.35\textwidth]{figures/cdaf.png}
@@ -446,9 +454,8 @@ speed and sensor gain to reach the desired exposure level while maintaining
 image quality.
 
 The Raspberry Pi first calculates the weighted average luminance, it does this
-by diving an image into 16x16 regions\footnote{On the Pi 4 the region weights are
-set and non symmetric} which have weights assigned to them. The average is then
-calculated using the following formula:~\[Y = \frac{\sum_{i \in \text{regions}} w_i Y_i}{\sum_{i \in \text{regions}} w_i}\]
+by diving an image into 16x16 regions which have weights assigned to them. The
+average is then calculated using the following formula:~\[Y = \frac{\sum_{i \in \text{regions}} w_i Y_i}{\sum_{i \in \text{regions}} w_i}\]
 
 \begin{wrapfigure}{l}{0.5\textwidth}
     \centering
@@ -514,7 +521,7 @@ the Pi ISP specification\footnote{https://datasheets.raspberrypi.com/camera/rasp
 
 \subsubsection{Image Processing and Tiles}
 The Raspberry Pi ISP is divided into two sections, the front- and back end.
-Though the front end has some image processing capabilities, being able to scale
+While the front end has some image processing capabilities, being able to scale
 and crop images, its main responsibility is to write images to main memory.
 It provides an AXI\footnote{https://developer.arm.com/documentation/ihi0051/latest}
 interface to give the ISP frames. While doing this, it provides the backend
@@ -542,23 +549,23 @@ chunks the ISP can safely process the image in parallel.
 
 CSI-2\footnote{https://www.mipi.org/specifications/csi-2} is a technology to
 transport sensor data over short distances very quickly. While being initially
-made for mobile, the technology has moved to automotive. Because of this, CSI-2
-has been made to transport data over a few centimeters. This has made it
+made for mobile, the technology has moved to automotive. As CSI-2 initially was designed for
+mobile devices, it is not made to transport data over long distances. This has made it
 slightly more difficult in the automotive industry, as cars are larger than a
 few centimeters. The solution for this is often to have another technology such
 as GMSL\footnote{https://www.analog.com/en/solutions/gigabit-mulitimedia-serial-link.html}
 though as long as there is enough bandwidth the data could even be converted to
-an IP packet. Once it is within range, it is back to CSI-2.
+an IP packet. Once it is within range, it is converted back to CSI-2.
 
 CSI-2 uses two different technologies, namely C-PHY and D-PHY. These can
 transport data at different speeds. Along with the fast C-PHY/D-PHY lanes,
 control lanes are also provided that control the camera over I$^2$C. Each API
-can be used on the same chip, if speed is needed C-PHY should be used. Though
+can be used on the same chip, if speed is needed C-PHY should be used. While
 D-PHY is much simpler to implement as it is a basic master/slave system similar
 to I$^2$C.
 
 D-PHY uses a dedicated lane for clock, this means that it only has two lanes for
-data transport. It is a very simple synchronous protocol, it does not encode
+data transport. It is a very simple synchronous protocol, it does not encode the
 bits in any way.
 
 Unlike D-PHY, C-PHY does not have a dedicated lane for clock. It uses all lanes
@@ -576,7 +583,7 @@ decoded from the "moves" from one state to another. These symbols are often
 sent in groups of 7, into these 7 symbols 16 bits\footnote{16 bits is a nice
 amount, it fits on 2 lanes and is easily parallelizable} are encoded\footnote{\href{https://www.mipi.org/specifications/c-phy}{MIPI C-PHY spec}}.
 
-CSI-2 is often used where speed is crucial, if the symbol rate is 2Gsps,
+CSI-2 is often used where speed is crucial, if the symbol rate is 2 Giga symbols per second (Gsps),
 it follows that the bit rate for each triplet is
 $(16\text{bits} / 7\text{symbols}) * 2\text{Gsps} = 4.57 \text{GBps}$.
 In \cref{fig:cphydphycomparison} we can see how the two technologies compare,
@@ -584,12 +591,12 @@ with D-PHY we need much more connections compared to C-PHY to reach the same
 speed.
 
 \subsection{I2C}
-\textit{Inter-Integrated Circuit} (I2C) is a widely used standard\footnote{\href{https://web.archive.org/web/20221006073143/http://www.nxp.com/docs/en/user-guide/UM10204.pdf}{I2C standard}}
+\textit{Inter-Integrated Circuit} (I2C) is a widely used standard\footnote{\href{http://www.nxp.com/docs/en/user-guide/UM10204.pdf}{https://web.archive.org/web/20221006073143/http://www.nxp.com/docs/en/user-guide/UM10204.pdf}}
 in configuring cameras today. It is based on the
 master/slave system where the master controls the clock, sending signals to the
 slave device which responds whenever addressed. A host computer for example
 configures camera devices. I2C is a two wire system with a clock wire and a
-data wire\footnote{\href{https://patents.google.com/patent/US4689740A/en}{I2C patent}}
+data wire\footnote{\href{https://patents.google.com/patent/US4689740A/en}{https://patents.google.com/patent/US4689740A/en}}
 where after each clock pulse the data wire can change.
 
 \begin{figure}
@@ -597,7 +604,7 @@ where after each clock pulse the data wire can change.
         \includegraphics[width=0.95\textwidth]{figures/I2C_transaction.png}
     \end{center}
     \caption{I2C Communication transaction, SCL is the clock lane and SDA is the data lane.
-        \textit{Image source: \href{https://www.nxp.com/docs/en/user-guide/UM10204.pdf}{I2C standard}}}\label{fig:I2C}
+        \textit{Image source: \href{https://www.nxp.com/docs/en/user-guide/UM10204.pdf}{https://www.nxp.com/docs/en/user-guide/UM10204.pdf}}}\label{fig:I2C}
 \end{figure}
 
 The communication process works in the following way as seen in \cref{fig:I2C}:
@@ -625,23 +632,24 @@ In userspace Linux I2C is configured using \textit{ioctl} commands. This will
 briefly be covered in \cref{section:v4l2}.
 
 \section{History}
-In this section we will cover the history of cameras on Linux.
-
 In the early days cameras were quite simple, there effectively was just a
 function to tell the camera to capture an image. This process did not allow for
 much customization. This was the case with most cameras such as webcameras where
-the camera sensors were "smart sensors". This meant that the cameras had a
+the camera sensors were "smart sensors". This means that the cameras had a
 small ISP integrated into them, they could do the image processing internally. Even
-the integrated laptop ones were just USB devices that spit out images in a
+the integrated laptop ones were just USB devices that output images in a
 similar fashion. Linux had initially had lacking support for this, but in the
-early 2000s Video For Linux (V4L, later V4L2 for version 2) was developed. This
-covered most of the use cases at the time. V4L grew organically over the years,
-it developed the features that were needed as they were needed. This meant that
-there was no large plan being executed, in turn the design that grew became a
-bad one\footnote{Direct documentation on what was wrong with the API has not
-really been written, this is based on a discussion with Laurent Pitchard}. In
-1998 Bill Dericks began the design and development of V4L2 which we have in use
-today\footnote{https://www.kernel.org/doc/html/v4.9/media/uapi/v4l/hist-v4l2.html}.
+late 1990s Video For Linux (V4L, later V4L2 for version 2) was developed. This
+covered most of the use cases at the time.
+
+Over the years V4L had grown organically, developing features on the fly as
+they were needed. This meant that there was no large plan being executed, in
+turn the design turned out to be far from optimal\footnote{Direct documentation
+on what was wrong with the API has not really been written, this is based
+on a discussion with Laurent Pitchard}. In 1998 Bill Dericks began the
+design and development of V4L2 which we have in use today\footnote{https://www.kernel.org/doc/html/v4.9/media/uapi/v4l/hist-v4l2.html}.
+V4L2 got merged into Linux 2.5.x/2.6 (around 2003), deprecating the
+original one.
 
 \begin{figure}
     \centering
@@ -650,18 +658,18 @@ today\footnote{https://www.kernel.org/doc/html/v4.9/media/uapi/v4l/hist-v4l2.htm
     \label{fig:fcam_api}
 \end{figure}
 
-In 2009 the Nokia N900 was released, this was a Linux based phone that was not
+In 2009 the Nokia N900 was released, this was a Linux based phone that included a camera that was not
 like most cameras at the time. It provided interfaces for customizing just
 about everything. From ISPs to Image Processing Algorithms (IPAs), this meant
 that the current way camera APIs worked was no longer maintainable. It
 required that the application would manage everything, computing the
-histograms, configuring the autocontrol etc.. While this was doable for a
+histograms, configuring the autocontrol etc. While this was doable for a
 company on the scale of Nokia at the time, it was not for anyone else. Enter
 Frankencamera~\cite{adams2010frankencamera}; this was an effort at the time
 to create an API that allowed the user to express the different options that
 cameras needed. This effort was lead by Stanford and Nokia, it is what most
 modern APIs are based on at a high level. It was built on top of V4L2,
-providing a more user friendly API than the kernel drivers themselves.
+providing a more user friendly API.
 
 Like its successors covered in~\cref{section:currentAPIs}, the Frankencamera API
 was a request based API. The idea with it was to allow for the user to control
@@ -682,7 +690,3 @@ pipeline so that you could guarantee that the settings were correct. This was a
 very complex process, though state was important; it was placed in the wrong
 place. This lead to the creation of the request based API, where the
 application would manage the state and the camera would simply accept requests.
-While request based APIs allow for a better control of the camera, it also
-makes it so that the API is not able to optimze much if the request can fully
-change each frame. While if the API was a streaming API it could have certain
-assumptions that reduce amount of copies, hence making it faster.

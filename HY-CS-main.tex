@@ -1,4 +1,4 @@
-%% Follow comments to support use.
+%r Follow comments to support use.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% STEP 1: Choose options for MSc / BSc / seminar layout and your bibliographic style
@@ -63,14 +63,15 @@
 \usepackage{textcomp}        % Package for special symbols
 \usepackage[pdftex]{color, graphicx} % For pdf output and jpg/png graphics
 \usepackage{epsfig}
-\usepackage[pdftex, plainpages=false]{hyperref} % For hyperlinks and pdf metadata
 \usepackage{fancyhdr}        % For nicer page headers
 \usepackage{tikz}            % For making vector graphics (hard to learn but powerful)
 \usepackage{wrapfig}        % For nice text-wrapping figures (use at own discretion)
 \usepackage{amsmath, amssymb} % For better math
-\usepackage[nameinlink,capitalize]{cleveref}
 \usepackage{subfig}
 \usepackage{listings}
+\usepackage{makecell}
+\usepackage[pdftex]{hyperref} % For hyperlinks and pdf metadata
+\usepackage[nameinlink,capitalize]{cleveref}
 \captionsetup[subfloat]{labelformat=simple}
 
 \renewcommand{\thefootnote}{\roman{footnote}}
@@ -91,7 +92,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Set up personal information for the title page and the abstract form.
 %% Replace parameters with your information.
-\title{Camera Architecture And Computational Photography}
+\title{Camera Architecture and Computational Photography}
 
 \author{Viktor Horsmanheimo}
 \date{\today}
@@ -100,7 +101,7 @@
 % in English Prof. or Dr., or in Finnish toht. or tri or FT, TkT, Ph.D. or in Swedish...
 \supervisors{Prof. Keijo Heljanko}
 
-\keywords{embedded cameras, camera API, camera sensors, cameras, Image Signal Processors}
+\keywords{Embedded Cameras, Camera API, Camera Sensors, Camera, Image Signal Processors}
 \additionalinformation{\translate{\track}}
 
 %% For seminar reports:
@@ -114,7 +115,7 @@
 
 \classification{\protect{\ \\
 \  CCS $\rightarrow$ Software and its engineering  $\rightarrow$ Software organization and properties\  \\
-\  Software system structures  $\rightarrow$ Embedded software
+\  Software system structures  $\rightarrow$ Embedded software\\
 }}
 
 %% If you want to quote someone special. You can comment this line out and there will be nothing on the document.
@@ -134,7 +135,7 @@
     pdfsubject={},          % subject of the document
     pdfcreator={},          % creator of the document
     pdfproducer={pdfLaTeX}, % producer of the document
-    pdfkeywords={something} {something else}, % list of keywords for
+    pdfkeywords={camera} {isp}, % list of keywords for
     pdfnewwindow=true,      % links in new window
     colorlinks=true,        % false: boxed links; true: colored links
     linkcolor=black,        % color of internal links
