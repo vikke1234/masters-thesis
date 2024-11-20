@@ -146,7 +146,7 @@ on EGL. EGL acts as a bridge between the native windowing system and the OpenGL 
 Like OpenGL, EGL is a very old API, today it does not receive many
 updates. Effectively only when requested by big customers, even then it is
 almost exclusively to enable emulation using Vulkan\footnote{Tony Zlatinski,
-Personal communication, October 2024}\footnote{\url{https://www.vulkan.org/}}.
+Personal communication, October 2024}$^,$\footnote{\url{https://www.vulkan.org/}}.
 The issue with OpenGL and EGL is that it assumes an internal state. While this
 state allows users to create applications quickly, avoiding much boilerplate,
 it also sets a "glass ceiling". This ceiling sets a limit on how fast
@@ -340,7 +340,7 @@ this issue in future iterations by providing more standardized ways to
 configure cameras, but this is not something that will be solved initially.
 
 Another exciting aspect of Kamaros is its potential integration with Vulkan,
-Khronoss low-overhead graphics and compute APIs. By leveraging Vulkan for
+Khronos low-overhead graphics and compute APIs. By leveraging Vulkan for
 post-processing tasks, Kamaros could enable developers to take full advantage
 of GPU acceleration for complex image processing tasks such as filtering,
 noise reduction, or even real-time video processing. This would allow
@@ -351,7 +351,7 @@ That said, Kamaros is still in its early stages of development, and much
 remains unknown about its final form. The specification has not yet been
 released, so it is difficult to comment on the specifics of how the API will
 function or what features it will include at launch. However, based on
-Khronoss track record with other successful standards like OpenGL and Vulkan,
+Khronos track record with other successful standards like OpenGL and Vulkan,
 there is reason to be optimistic about Kamaros's potential impact on the
 embedded camera ecosystem.
 
@@ -415,9 +415,10 @@ multiplexing application or daemon such as Pipewire\footnote{\url{https://pipewi
 Pipewire allows the user to set permissions for each application, enabling or
 disabling the access to cameras. In the case of Pipewire, it builds on top of
 libcamera and V4L2. Upon interviewing, some complaints were that Pipewire does
-not have fine grained enough permission systems. They mention that a permission
-system that would allow only access to specific cameras would be needed.
-Currently it only allows for the application to either access them or not.
+not have fine grained enough permission systems. There were mentions that a
+permission system that would allow only access to specific cameras would be
+needed. Currently it only allows for the application to either access them or
+not.
 
 The interviews also suggested that the documentation is often not sufficient,
 being difficult to decipher how things are done.
@@ -456,9 +457,9 @@ being difficult to decipher how things are done.
 While the APIs largely do the same thing, in a very similar fashion they still
 have different use cases. Each still provide unique features when it comes to
 both camera control, image processing, and the platforms they run on. In
-\cref{table:apiComparison} we can see a full list of the feature comparison
-done. Genicam is excluded in this comparison as it is completely dependent on
-the vendor. The standard itself does not provide any functionality.
+\cref{table:apiComparison} we can see a list of the feature comparison. Genicam
+is excluded in this comparison as it is completely dependent on the vendor. The
+standard itself does not provide any functionality.
 
 libcamera runs on essentially any platform that can run Linux, except for
 Tegra devices running \textit{Linux For Tegra} (L4T). libcamera does not run

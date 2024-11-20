@@ -396,7 +396,7 @@ the red and blue color channels to get to the desired temperature.
 \textit{\textbf{Auto Focus}} (AF)  adds automatic focusing on objects. While
 one of the 3As, AF is not always available depending on the camera module, these
 cameras are called \textit{fixed focus cameras}. For AF to exist, it needs a way to move
-the lense, this is often done with a \textit{Voice-Coil Motor}~\cite{coilmotor2007}.
+the lens, this is often done with a \textit{Voice-Coil Motor}~\cite{coilmotor2007}.
 This adds complexity to the camera, which depending on your use case might not be
 necessary as well as additional points of failure.
 
@@ -409,7 +409,7 @@ Auto Focus} (PDAF) or \textit{Contrast Detection Auto Focus} (CDAF).
 \begin{figure}
     \centering
         \includegraphics[width=0.7\textwidth]{figures/pdaf_sensor.png}
-        \caption{An unfocused microlense PDAF pixel, the left side has a
+        \caption{An unfocused microlens PDAF pixel, the left side has a
         different offset than the right.}
         \label{fig:pdaf}
 \end{figure}
@@ -428,7 +428,7 @@ misleading, what it means is that the sensor looks for objects that have some
 horizontal gradient. Objects such as a vertical grating have very large
 gradients and serve the purpose very well, though it can look for it in
 anything. These gradients are viewed through two PDAF sensors like in
-\cref{fig:pdaf}. The "large" microlense above the pixel bends the light coming
+\cref{fig:pdaf}. The "large" microlens above the pixel bends the light coming
 in so that each pixel sees either the left or right side of the
 lens\footnote{This is but one implementation, some systems can use "shielded"
 pixels as to block a part of the light.}. They then compare the offset of the
