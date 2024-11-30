@@ -120,7 +120,7 @@ move~\cite{peterson2001works}.
         \includegraphics[width=0.40\textwidth]{figures/ccd_blooming.jpg}
         \label{fig:ccdbloom}
     }
-    \subfloat[CMOS vs CDD comparison~\cite{ieeeCMOS}]{
+    \subfloat[CMOS vs CCD comparison~\cite{ieeeCMOS}]{
         \includegraphics[width=0.5\textwidth]{figures/cmos_vs_cdd}
         \label{fig:cmosvsccd}
     }
@@ -252,7 +252,7 @@ itu1993digital}.
 \textit{Image Signal Processors} (ISPs) are a highly secretive piece of
 hardware~\cite{adams2010frankencamera}. There are few camera systems that say
 they even have one, and even fewer that explain how they work. To understand
-how ISPs work, this section will be based on the Raspberry Pi\footnote{\label{note:tuningguide}https://datasheets.raspberrypi.com/camera/raspberry-pi-camera-guide.pdf}$^,$\footnote{https://datasheets.raspberrypi.com/camera/raspberry-pi-image-signal-processor-specification.pdf}.
+how ISPs work, this section will be based on the Raspberry Pi\footnote{\url{https://datasheets.raspberrypi.com/camera/raspberry-pi-camera-guide.pdf}}$^,$\footnote{\url{https://datasheets.raspberrypi.com/camera/raspberry-pi-image-signal-processor-specification.pdf}}.
 We will be using the Raspberry Pi 5, though at times older versions may be
 mentioned. It is the only one that is open source (excluding the \textit{Register Transfer
 Level} (RTL) code) along with an open specification. RTL code is the
@@ -321,9 +321,10 @@ manual if it exists), most work something along the lines of:
 
     \item The ISP then begins applying the autocontrol algorithms, the standard
         ones are known as the \textit{Triple Autocontrol} (3A) algorithms for
-        auto white balancing, gain/exposure, and focus control~\cite{libcameraStack}.
-        These will be covered in a bit more detail in
-        \cref{section:autocontrol}.
+        (\textit{Auto White Balancing} (AWB), \textit{Auto Gain Control} (AGC)
+        and \textit{Auto Exposure Control} (AEC), and \textit{Auto Focus}
+        (AF))~\cite{libcameraStack}. These will be covered in a bit more detail
+        in \cref{section:autocontrol}.
 
     \item Apply other autocontrol algorithms, the specifics will be covered later.
 
@@ -377,7 +378,7 @@ Bayesian approach.
     \begin{center}
         \includegraphics[width=0.4\textwidth]{figures/temperature.png}
     \end{center}
-    \caption{Color temperatures with blue and red normalized, \textit{image source: \cref{note:tuningguide}}}\label{fig:temperatures}
+    \caption{Color temperatures with blue and red normalized, \textit{image source: \url{https://datasheets.raspberrypi.com/camera/raspberry-pi-camera-guide.pdf}}}\label{fig:temperatures}
 \end{figure}
 In order to achieve this, one must first tune the AWB algorithm. This is done
 through capturing an image of a color checker chart where the colors are known.
@@ -404,7 +405,7 @@ In general autofocus can be categorized into two different approaches: active
 and passive. The active approach is similar to how 3D cameras work
 (see~\cref{section:3Dcameras}) where a laser can be fired to measure distance
 or something similar. Passive on the other hand uses \textit{Phase Detection
-Auto Focus} (PDAF) or \textit{Contrast Detection Auto Focus} (CDAF).
+Auto Focus} (PDAF) or \textit{Contrast Detection Auto Focus} (CDAF)~\cite{Abuolaim_2018_ECCV}.
 
 \begin{figure}
     \centering
@@ -632,8 +633,8 @@ In userspace Linux I2C is configured using \textit{ioctl} commands. This will
 briefly be covered in \cref{section:v4l2}.
 
 \section{History}
-In the early days cameras were quite simple, there effectively was just a
-function to tell the camera to capture an image. This process did not allow for
+In the early days, cameras for embedded devices were quite simple. There effectively was just a
+function to tell the camera to capture an image, this process did not allow for
 much customization. This was the case with most cameras such as webcameras where
 the camera sensors were "smart sensors". This means that the cameras had a
 small ISP integrated into them, they could do the image processing internally. Even
