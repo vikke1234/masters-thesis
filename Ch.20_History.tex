@@ -94,6 +94,8 @@ has been done in order to improve the accuracy of measurements on these
 surfaces~\cite{foster2013visagge, henley23lidar}. While the technology has come
 a long way, often a secondary sensor technology is accompanied with LiDAR for
 detecting specular surfaces such as ultrasonic scanners~\cite{diosi2004advanced}.
+It is also worth looking into \textit{time of flight cameras}\cite{hansard2012time}, though it will
+not be covered here.
 
 \textbf{Stereo cameras}, like human eyes uses two cameras next to each other.
 By taking two images depth can be calculated~\cite{adi2017distance}. It is done
@@ -167,8 +169,7 @@ can be seen in \cref{fig:ccdbloom}.
 \subsection{Image Formats} \label{section:imageformats}
 There are a number of different image formats, their purpose is to store an
 image in an efficient way. We will cover some common ones, while the list is
-not conclusive it will serve as a good base. We will cover two raw formats and
-one encoded format.
+not conclusive it will serve as a good base.
 
 \begin{wrapfigure}{r}{0.4\textwidth}
   \centering
@@ -314,10 +315,11 @@ manual if it exists), most work something along the lines of:
 \begin{enumerate}
     \item Receive raw sensor data, often a Bayer image or similar. A Bayer
         image is constructed using two green channels, one red, and one blue as
-        seen in \cref{fig:bayer_pattern}. Like mentioned in \cref{section:imageformats},
-        the human eye sees more green than other colors, so the pattern has
-        more green than red and blue. There are other similar formats, though
-        they all work more or less in the same way.
+        seen in \cref{fig:bayer_pattern} (8 bits per channel). Like mentioned
+        in \cref{section:imageformats}, the human eye sees more green than
+        other colors~\cite{davson2010human}, so the pattern has more green than
+        red and blue. There are other similar formats, though they all work
+        more or less in the same way.
 
     \item The ISP then begins applying the autocontrol algorithms, the standard
         ones are known as the \textit{Triple Autocontrol} (3A) algorithms for
@@ -445,6 +447,11 @@ CDAF has a drawback though, if the focus window is too large it can be difficult
 to find a focus. This is due to the background having such a large part of the
 focus window. A workaround for this is to focus on a smaller area.
 
+The big benefit of PDAF compared to CDAF, is that the sensor can
+immediately be tell which way to move the lens in order to get a better focus.
+CDAF on the other hand, simply measures how blurry the image is. It needs to
+move the sensor in some way to be able to re-measure how blurry it is.
+
 \textit{\textbf{Automatic Gain Control}} (AGC) and \textit{\textbf{Automatic
 Exposure Control}} (AEC) work in tandem to optimize image brightness and
 contrast. They control exposure settings by dividing the image into regions to
@@ -484,18 +491,23 @@ the top 25\% of the histogram to be above the 0.5 pixel range. In order to
 achieve this, the ISP adjusts the exposure time and digital gain levels with
 small increments until it is reached.
 
-On top of the 3A algorithms, there are a lot more that the ISP often does. For
-example there is often some vignette, color correction and more. In
-\cref{fig:lens_shading} we can see an example of how the ISP has fixed the image.
-In \cref{fig:with_shading} the corners are significantly darker than the center,
-while in \cref{fig:without_shading} the whole image is equally lit. An image
-may also have the colors slightly (or a lot) wrong. It can then compute the
-histograms for each color, and try to balance the colors. We can see an example
-of this done in software in \cref{fig:nocolorcorrection} where the image is
-very green. After balancing the colors in \cref{fig:colorcorrection} the image
-looks normal once more. There are many more processing algorithms that are run
-on the images, for a more thorough overview of each of these please refer to
-the Pi ISP specification\footnote{https://datasheets.raspberrypi.com/camera/raspberry-pi-image-signal-processor-specification.pdf}.
+On top of the 3A algorithms, there are a lot autocontrol algorithms, these are
+run on the host\footnote{\url{https://libcamera.org/libcamera_architecture.html}}
+which utilizes the ISP for hardware acceleration. For example, there are often some
+vignette correction, color correction, and various other adjustments. In
+\cref{fig:lens_shading} we can see an example of how the IPA has fixed the
+image. In \cref{fig:with_shading} the corners are significantly darker than the
+center, while in \cref{fig:without_shading} the whole image is equally lit. An
+image may also have the colors slightly (or a lot) wrong. It can then compute
+the histograms for each color, and try to balance the colors. We can see an
+example of this done in software in \cref{fig:nocolorcorrection} where the
+image is very green. After balancing the colors in \cref{fig:colorcorrection}
+the image looks normal once more. There are many more processing algorithms
+that are run on the images, for a more thorough overview of each of these
+please refer to the Pi ISP
+specification\footnote{\url{https://datasheets.raspberrypi.com/camera/raspberry-pi-image-signal-processor-specification.pdf}}
+and tuning
+guide\footnote{\url{https://datasheets.raspberrypi.com/camera/raspberry-pi-camera-guide.pdf}}.
 
 \begin{figure}[htpb]
     \centering
@@ -533,11 +545,8 @@ The backend then reads these images that the frontend has provided. Unlike how
 applications deal with full frames, the backend deals with \textit{tiles}. The
 Raspberry Pi uses tiles that are 640x640 aligned to 64 bits. This is done in
 order to reduce the amount of memory required to process an image and speed up
-memory access. By limiting it to tiles of the image, significantly less memory
-is required for a 4K image to be processed. Additionally this means that the
-image processing can be parallelized, by splitting the image into several
-chunks the ISP can safely process the image in parallel.
-
+memory access. By limiting it to tiles of the image, significantly less
+internal memory is required for a 4K image to be processed.
 
 \subsection{CSI-2}
 \begin{figure}
